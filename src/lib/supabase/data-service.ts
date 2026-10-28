@@ -2,6 +2,7 @@ import { createClient } from "./server";
 import {
   Tenant,
   LandingPage,
+  GalleryImage,
   ServiceItem,
   BusinessHour,
   Profile,
@@ -1143,6 +1144,43 @@ export const dataService = {
     tenantId: string,
     image: { url: string; title: string; alt?: string }
   ): Promise<LandingPage | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+
+      // Busca galeria atual para garantir isolamento por tenant
+      const { data: currentPage, error: fetchError } = await supabase
+        .from("landing_pages")
+        .select("gallery")
+        .eq("tenant_id", tenantId)
+        .single();
+
+      if (fetchError || !currentPage) return null;
+
+      const currentGallery: GalleryImage[] = Array.isArray(currentPage.gallery)
+        ? (currentPage.gallery as GalleryImage[])
+        : [];
+
+      const newImage: GalleryImage = {
+        id: `gal-${Date.now()}`,
+        url: image.url,
+        title: image.title,
+        alt: image.alt || image.title,
+      };
+
+      const updatedGallery = [...currentGallery, newImage];
+
+      const { data, error } = await supabase
+        .from("landing_pages")
+        .update({ gallery: updatedGallery, updated_at: new Date().toISOString() })
+        .eq("tenant_id", tenantId)
+        .select()
+        .single();
+
+      if (error) return null;
+      return data as LandingPage;
+    }
+
+    // Modo demo/local
     const page = DEMO_PAGES[tenantId];
     if (!page) return null;
 
@@ -1162,6 +1200,36 @@ export const dataService = {
 
   // 16. Remover Imagem da Galeria
   async deleteGalleryImage(tenantId: string, imageId: string): Promise<LandingPage | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+
+      // Busca galeria atual para garantir isolamento por tenant
+      const { data: currentPage, error: fetchError } = await supabase
+        .from("landing_pages")
+        .select("gallery")
+        .eq("tenant_id", tenantId)
+        .single();
+
+      if (fetchError || !currentPage) return null;
+
+      const currentGallery: GalleryImage[] = Array.isArray(currentPage.gallery)
+        ? (currentPage.gallery as GalleryImage[])
+        : [];
+
+      const filteredGallery = currentGallery.filter((img) => img.id !== imageId);
+
+      const { data, error } = await supabase
+        .from("landing_pages")
+        .update({ gallery: filteredGallery, updated_at: new Date().toISOString() })
+        .eq("tenant_id", tenantId)
+        .select()
+        .single();
+
+      if (error) return null;
+      return data as LandingPage;
+    }
+
+    // Modo demo/local
     const page = DEMO_PAGES[tenantId];
     if (!page || !page.gallery) return null;
 

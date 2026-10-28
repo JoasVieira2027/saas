@@ -216,11 +216,15 @@ export async function addGalleryImageAction(formData: FormData): Promise<void> {
 
   if (!url) return;
 
-  await dataService.addGalleryImage(tenant.id, {
+  const result = await dataService.addGalleryImage(tenant.id, {
     url,
     title,
     alt: title,
   });
+
+  if (!result) {
+    throw new Error("Falha ao salvar imagem na galeria. Verifique a configuração e tente novamente.");
+  }
 
   revalidatePath("/app");
   revalidatePath("/app/editor");
@@ -239,7 +243,11 @@ export async function deleteGalleryImageAction(imageId: string): Promise<void> {
     throw new Error("Tenant não localizado.");
   }
 
-  await dataService.deleteGalleryImage(tenant.id, imageId);
+  const result = await dataService.deleteGalleryImage(tenant.id, imageId);
+
+  if (!result) {
+    throw new Error("Falha ao remover imagem da galeria. Verifique a configuração e tente novamente.");
+  }
 
   revalidatePath("/app");
   revalidatePath("/app/editor");

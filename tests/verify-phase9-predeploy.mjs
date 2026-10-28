@@ -141,3 +141,4 @@ test("5. Segurança HTTP: next.config.ts define cabeçalhos de segurança recome
   assert.ok(nextConfig.includes("images.unsplash.com"), "Deve autorizar imagens do Unsplash");
   assert.ok(nextConfig.includes("*.supabase.co"), "Deve autorizar imagens do Supabase Storage");
 });
+

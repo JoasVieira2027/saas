@@ -115,6 +115,25 @@ export async function quickLoginAction(userId: string): Promise<void> {
 }
 
 export async function logoutAction(): Promise<void> {
+  // Encerrar sessão nativa do Supabase quando configurado (defense-in-depth)
+  // O cookie assinado HMAC é o mecanismo primário de autenticação; o signOut do
+  // Supabase é camada adicional de segurança para invalidar tokens JWT remotamente.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const isRealSupabase =
+    supabaseUrl.length > 0 &&
+    !supabaseUrl.includes("mock-project") &&
+    !supabaseUrl.includes("your-project");
+
+  if (isRealSupabase) {
+    try {
+      const supabase = await createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Ignora falha do signOut — o cookie assinado é o mecanismo primário.
+      // O clearSession() abaixo garante o encerramento local independentemente.
+    }
+  }
+
   await clearSession();
   redirect("/login");
 }
