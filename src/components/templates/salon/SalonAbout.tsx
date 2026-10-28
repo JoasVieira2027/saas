@@ -154,3 +154,4 @@ export function SalonAbout({ about, team, businessName }: SalonAboutProps) {
     </section>
   );
 }
+

@@ -27,3 +27,4 @@ export function SalonFloatingWhatsApp({
     </div>
   );
 }
+

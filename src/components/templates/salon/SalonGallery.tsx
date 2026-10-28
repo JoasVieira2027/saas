@@ -96,3 +96,4 @@ export function SalonGallery({ gallery }: SalonGalleryProps) {
     </section>
   );
 }
+

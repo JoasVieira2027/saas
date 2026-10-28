@@ -152,3 +152,4 @@ export function SalonHoursAndLocation({
     </section>
   );
 }
+

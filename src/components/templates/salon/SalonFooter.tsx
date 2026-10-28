@@ -54,3 +54,4 @@ export function SalonFooter({ businessName, contact }: SalonFooterProps) {
     </footer>
   );
 }
+

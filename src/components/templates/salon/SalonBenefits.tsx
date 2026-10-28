@@ -87,3 +87,4 @@ export function SalonBenefits({ differentials }: SalonBenefitsProps) {
     </section>
   );
 }
+

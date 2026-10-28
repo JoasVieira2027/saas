@@ -120,3 +120,4 @@ export function SalonHero({ hero, contact, businessName }: SalonHeroProps) {
     </section>
   );
 }
+

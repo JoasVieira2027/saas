@@ -51,3 +51,4 @@ test("4. Prevenção de Zoom no iPhone / Safari iOS", () => {
   const css = fs.readFileSync(cssPath, "utf-8");
   assert.match(css, /16px !important/, "Inputs devem ter font-size de 16px no mobile para prevenir zoom no iOS");
 });
+

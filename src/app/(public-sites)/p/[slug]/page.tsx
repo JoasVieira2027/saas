@@ -3,6 +3,7 @@ import Link from "next/link";
 import { dataService } from "@/lib/supabase/data-service";
 import { formatCurrency, formatWhatsAppUrl, SEGMENT_LABELS } from "@/lib/utils";
 import { SalonTemplate } from "@/components/templates/salon";
+import { BarberTemplate } from "@/components/templates/barber";
 import { Sparkles, Scissors, Crown, MessageCircle, MapPin, Clock, ShieldAlert, ArrowLeft } from "lucide-react";
 
 export default async function PublicLandingPage({
@@ -76,7 +77,12 @@ export default async function PublicLandingPage({
     return <SalonTemplate data={data} />;
   }
 
-  // 4. Renderização Base para os demais templates (serão detalhados nas próximas fases)
+  // 4. Renderização Especializada: Template de Barbearia (Fase 4)
+  if (page.template_id === "barber" || tenant.segment === "barber") {
+    return <BarberTemplate data={data} />;
+  }
+
+  // 5. Renderização Base para Unhas em Gel (será detalhado na Fase 5)
   const whatsappUrl = formatWhatsAppUrl(
     page.contact_info.whatsapp_number,
     page.contact_info.whatsapp_default_message
@@ -93,8 +99,7 @@ export default async function PublicLandingPage({
 
       <header className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs text-amber-400 font-medium mb-6">
-          {tenant.segment === "barber" && <Scissors className="w-3.5 h-3.5" />}
-          {tenant.segment === "nails" && <Crown className="w-3.5 h-3.5" />}
+          <Crown className="w-3.5 h-3.5" />
           <span>{page.hero_section.badge}</span>
         </div>
 
