@@ -89,3 +89,4 @@ export function BarberTemplate({ data }: BarberTemplateProps) {
     </div>
   );
 }
+

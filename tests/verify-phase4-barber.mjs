@@ -56,3 +56,4 @@ test("4. Verificação de Formatação de Preços para Barbearia", () => {
   const formatted = formatCurrency(priceCombo);
   assert.match(formatted, /110/, "Preço do combo deve ser formatado corretamente no padrão BRL");
 });
+

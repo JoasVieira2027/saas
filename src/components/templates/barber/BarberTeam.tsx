@@ -142,3 +142,4 @@ export function BarberTeam({ about, team, businessName }: BarberTeamProps) {
     </section>
   );
 }
+

@@ -114,3 +114,4 @@ export function BarberHero({ hero, contact, businessName }: BarberHeroProps) {
     </section>
   );
 }
+

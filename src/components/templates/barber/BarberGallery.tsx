@@ -96,3 +96,4 @@ export function BarberGallery({ gallery }: BarberGalleryProps) {
     </section>
   );
 }
+

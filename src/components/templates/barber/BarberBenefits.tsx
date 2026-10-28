@@ -87,3 +87,4 @@ export function BarberBenefits({ differentials }: BarberBenefitsProps) {
     </section>
   );
 }
+
