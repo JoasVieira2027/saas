@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { loginAction, quickLoginAction } from "@/app/auth/actions";
-import { Lock, Mail, ArrowRight, Shield, Sparkles, Scissors, Crown } from "lucide-react";
+import { Lock, Mail, ArrowRight, Shield, Sparkles, Scissors, Crown, AlertCircle } from "lucide-react";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  const params = await searchParams;
+  const isDev = process.env.NODE_ENV !== "production";
+
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-4">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
@@ -20,12 +23,28 @@ export default function LoginPage({
           Acesse sua conta
         </h2>
         <p className="mt-2 text-xs sm:text-sm text-neutral-400">
-          Entre como Administrador do SaaS ou como Cliente (Salão, Barbearia, Unhas)
+          Entre com seu e-mail e senha cadastrados
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-neutral-900 border border-neutral-800 py-8 px-5 sm:px-10 shadow-2xl rounded-2xl">
+          {/* Mensagem de Erro de Autenticação */}
+          {params?.error && (
+            <div className="mb-5 flex items-center gap-2.5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+              <span>
+                {params.error === "invalid_credentials" && "E-mail ou senha incorretos."}
+                {params.error === "missing_email" && "Por favor, informe seu e-mail."}
+                {params.error === "missing_password" && "Por favor, informe sua senha."}
+                {params.error === "profile_not_found" && "Perfil de usuário não encontrado."}
+                {params.error === "not_found" && "Usuário não localizado."}
+                {!["invalid_credentials", "missing_email", "missing_password", "profile_not_found", "not_found"].includes(params.error) &&
+                  "Falha na autenticação. Verifique os dados e tente novamente."}
+              </span>
+            </div>
+          )}
+
           {/* Formulário Padrão */}
           <form action={loginAction} className="space-y-4">
             <div>
@@ -57,7 +76,7 @@ export default function LoginPage({
                 <input
                   type="password"
                   name="password"
-                  defaultValue="123456"
+                  defaultValue={isDev ? "123456" : undefined}
                   placeholder="••••••••"
                   className="block w-full rounded-lg border border-neutral-700 bg-neutral-800/80 py-2.5 pl-10 pr-3 text-sm text-white placeholder-neutral-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
@@ -73,85 +92,87 @@ export default function LoginPage({
             </button>
           </form>
 
-          {/* Divisor */}
-          <div className="mt-8 pt-6 border-t border-neutral-800">
-            <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider text-center mb-3">
-              Acesso Rápido para Demonstração e Testes
-            </p>
-            <div className="space-y-2">
-              <form action={quickLoginAction.bind(null, "admin-1")}>
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-between p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-left transition-colors text-amber-200 text-xs sm:text-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Shield className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div>
-                      <div className="font-semibold text-amber-300">Administrador Geral (Owner)</div>
-                      <div className="text-xs text-neutral-400">admin@saas.com</div>
+          {/* Atalhos Rápidos: Renderizados EXCLUSIVAMENTE em ambiente de desenvolvimento */}
+          {isDev && (
+            <div className="mt-8 pt-6 border-t border-neutral-800">
+              <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider text-center mb-3">
+                Acesso Rápido para Demonstração e Testes (Dev)
+              </p>
+              <div className="space-y-2">
+                <form action={quickLoginAction.bind(null, "admin-1")}>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-between p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-left transition-colors text-amber-200 text-xs sm:text-sm"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-amber-300">Administrador Geral (Owner)</div>
+                        <div className="text-xs text-neutral-400">admin@saas.com</div>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
-                    Superadmin
-                  </span>
-                </button>
-              </form>
+                    <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
+                      Superadmin
+                    </span>
+                  </button>
+                </form>
 
-              <form action={quickLoginAction.bind(null, "salon-owner-1")}>
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-between p-2.5 rounded-lg border border-neutral-800 bg-neutral-800/60 hover:bg-neutral-800 text-left transition-colors text-xs sm:text-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div>
-                      <div className="font-semibold text-neutral-200">Lumière Concept Hair</div>
-                      <div className="text-xs text-neutral-400">aline@lumiere.com (Salão)</div>
+                <form action={quickLoginAction.bind(null, "salon-owner-1")}>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-between p-2.5 rounded-lg border border-neutral-800 bg-neutral-800/60 hover:bg-neutral-800 text-left transition-colors text-xs sm:text-sm"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-neutral-200">Lumière Concept Hair</div>
+                        <div className="text-xs text-neutral-400">aline@lumiere.com (Salão)</div>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-xs bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded">
-                    Cliente
-                  </span>
-                </button>
-              </form>
+                    <span className="text-xs bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded">
+                      Cliente
+                    </span>
+                  </button>
+                </form>
 
-              <form action={quickLoginAction.bind(null, "barber-owner-1")}>
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-between p-2.5 rounded-lg border border-neutral-800 bg-neutral-800/60 hover:bg-neutral-800 text-left transition-colors text-xs sm:text-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Scissors className="w-4 h-4 text-neutral-300 shrink-0" />
-                    <div>
-                      <div className="font-semibold text-neutral-200">Navalha de Ouro Barber</div>
-                      <div className="text-xs text-neutral-400">marcos@navalha.com (Barbearia)</div>
+                <form action={quickLoginAction.bind(null, "barber-owner-1")}>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-between p-2.5 rounded-lg border border-neutral-800 bg-neutral-800/60 hover:bg-neutral-800 text-left transition-colors text-xs sm:text-sm"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Scissors className="w-4 h-4 text-neutral-300 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-neutral-200">Navalha de Ouro Barber</div>
+                        <div className="text-xs text-neutral-400">marcos@navalha.com (Barbearia)</div>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-xs bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded">
-                    Cliente
-                  </span>
-                </button>
-              </form>
+                    <span className="text-xs bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded">
+                      Cliente
+                    </span>
+                  </button>
+                </form>
 
-              <form action={quickLoginAction.bind(null, "nails-owner-1")}>
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-between p-2.5 rounded-lg border border-neutral-800 bg-neutral-800/60 hover:bg-neutral-800 text-left transition-colors text-xs sm:text-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Crown className="w-4 h-4 text-rose-400 shrink-0" />
-                    <div>
-                      <div className="font-semibold text-neutral-200">Studio Gisele Nail Art</div>
-                      <div className="text-xs text-neutral-400">gisele@nails.com (Unhas em Gel)</div>
+                <form action={quickLoginAction.bind(null, "nails-owner-1")}>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-between p-2.5 rounded-lg border border-neutral-800 bg-neutral-800/60 hover:bg-neutral-800 text-left transition-colors text-xs sm:text-sm"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Crown className="w-4 h-4 text-rose-400 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-neutral-200">Studio Gisele Nail Art</div>
+                        <div className="text-xs text-neutral-400">gisele@nails.com (Unhas em Gel)</div>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-xs bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded">
-                    Cliente
-                  </span>
-                </button>
-              </form>
+                    <span className="text-xs bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded">
+                      Cliente
+                    </span>
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
