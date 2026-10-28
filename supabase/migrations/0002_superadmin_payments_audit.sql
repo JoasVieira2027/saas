@@ -99,3 +99,4 @@ USING (
           AND tenants.subscription_status NOT IN ('suspended', 'cancelled')
     )
 );
+

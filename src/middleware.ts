@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { verifySessionToken } from "@/lib/auth";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hostname = request.headers.get("host") || "";
 
@@ -23,17 +24,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/p/${subdomain}${pathname}`, request.url));
   }
 
-  // 2. Proteção de Rotas com Base na Sessão (Cookies Seguros)
+  // 2. Proteção de Rotas com Base na Sessão Criptograficamente Assinada
   const sessionCookie = request.cookies.get("saas_auth_session");
-  let userSession: { role?: string } | null = null;
-
-  if (sessionCookie?.value) {
-    try {
-      userSession = JSON.parse(sessionCookie.value);
-    } catch {
-      userSession = null;
-    }
-  }
+  const userSession = sessionCookie?.value ? await verifySessionToken(sessionCookie.value) : null;
 
   // Redireciona usuários já autenticados que acessam /login
   if (pathname === "/login" && userSession) {

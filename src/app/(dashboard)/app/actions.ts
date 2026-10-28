@@ -5,16 +5,21 @@ import { requireTenant } from "@/lib/auth";
 import { dataService } from "@/lib/supabase/data-service";
 import { SegmentType } from "@/types/database";
 
-// 1. Alternar Status de Publicação
-export async function togglePublishAction(tenantId: string): Promise<void> {
+// 1. Alternar Status de Publicação (Proteção estrita por sessão do proprietário)
+export async function togglePublishAction(tenantId?: string): Promise<void> {
   const session = await requireTenant();
   const tenant = await dataService.getTenantByOwner(session.userId);
 
-  if (!tenant || tenant.id !== tenantId) {
-    throw new Error("Não autorizado.");
+  if (!tenant) {
+    throw new Error("Não autorizado: Usuário não possui tenant associado.");
   }
 
-  await dataService.togglePublishPage(tenantId);
+  // Se um tenantId foi explicitamente fornecido, valida correspondência com o tenant da sessão
+  if (tenantId && tenant.id !== tenantId) {
+    throw new Error("Não autorizado: Tentativa de manipular tenant de terceiros.");
+  }
+
+  await dataService.togglePublishPage(tenant.id);
   revalidatePath("/app");
   revalidatePath("/app/editor");
   revalidatePath("/app/preview");

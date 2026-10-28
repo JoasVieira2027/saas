@@ -329,3 +329,4 @@ export function AdminClientsTable({ tenants }: AdminClientsTableProps) {
     </div>
   );
 }
+

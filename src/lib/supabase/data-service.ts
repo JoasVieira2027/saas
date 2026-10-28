@@ -854,9 +854,17 @@ export const dataService = {
         .select("*")
         .eq("slug", slug)
         .eq("status", "active")
+        .not("subscription_status", "in", '("suspended","cancelled")')
         .single();
 
       if (!tenant) return null;
+      if (
+        tenant.status !== "active" ||
+        tenant.subscription_status === "suspended" ||
+        tenant.subscription_status === "cancelled"
+      ) {
+        return null;
+      }
 
       const { data: page } = await supabase
         .from("landing_pages")
@@ -891,10 +899,18 @@ export const dataService = {
     const tenant = DEMO_TENANTS.find((t) => t.slug === slug);
     if (!tenant) return null;
 
-    const page = DEMO_PAGES[tenant.id];
-    if (!page) return null;
+    if (
+      tenant.status !== "active" ||
+      tenant.subscription_status === "suspended" ||
+      tenant.subscription_status === "cancelled"
+    ) {
+      return null;
+    }
 
-    const services = DEMO_SERVICES[tenant.id] || [];
+    const page = DEMO_PAGES[tenant.id];
+    if (!page || page.status !== "published") return null;
+
+    const services = (DEMO_SERVICES[tenant.id] || []).filter((s) => s.is_active);
     const business_hours = DEMO_HOURS[tenant.id] || [];
 
     return {
@@ -1334,15 +1350,20 @@ export const dataService = {
       DEMO_PAYMENTS.unshift(newPayment);
     }
 
-    // Calcula próximo vencimento somando 30 dias ou 1 mês ao due_date
-    const currentDue = new Date(data.due_date);
-    const nextDue = new Date(currentDue);
-    nextDue.setMonth(nextDue.getMonth() + 1);
-    const nextDueStr = nextDue.toISOString().split("T")[0];
+    // Calcula próximo vencimento somando 1 mês ao due_date de forma segura contra fuso horário
+    const [year, month, day] = data.due_date.split("-").map(Number);
+    const nextDueDate = new Date(year, (month || 1) - 1 + 1, day || 1);
+    const nextYear = nextDueDate.getFullYear();
+    const nextMonth = String(nextDueDate.getMonth() + 1).padStart(2, "0");
+    const nextDay = String(nextDueDate.getDate()).padStart(2, "0");
+    const nextDueStr = `${nextYear}-${nextMonth}-${nextDay}`;
 
     // Atualiza status do tenant para ativo e em dia
     const tenant = await this.getTenantById(data.tenant_id);
     if (tenant) {
+      if (tenant.status === "suspended") {
+        await this.updateTenantStatus(data.tenant_id, "active");
+      }
       await this.updateTenantSubscription(data.tenant_id, {
         subscription_status: "active",
         last_payment_date: paidAt,
@@ -1393,7 +1414,7 @@ export const dataService = {
     admin_id: string;
     admin_email: string;
     action: AdminAuditLog["action"];
-    target_tenant_id: string;
+    target_tenant_id: string | null;
     target_tenant_name: string;
     details: Record<string, any>;
   }): Promise<AdminAuditLog> {

@@ -64,8 +64,10 @@ export interface AdminAuditLog {
     | "record_payment"
     | "update_subscription"
     | "update_notes"
-    | "create_tenant";
-  target_tenant_id: string;
+    | "create_tenant"
+    | "impersonate_tenant"
+    | "stop_impersonation";
+  target_tenant_id: string | null;
   target_tenant_name: string;
   details: Record<string, any>;
   created_at: string;

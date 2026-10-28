@@ -243,3 +243,4 @@ test("6. Validação do Helper de Alerta de Vencimento", () => {
   assert.equal(farInfo.status, "ok");
   assert.match(farInfo.label, /Vence em 20 dias/);
 });
+
