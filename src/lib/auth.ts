@@ -2,8 +2,24 @@ import { cookies } from "next/headers";
 import { Profile } from "@/types/database";
 
 const SESSION_COOKIE_NAME = "saas_auth_session";
-const SESSION_SECRET =
-  process.env.SESSION_SECRET || "saas-secure-session-key-dev-default-32-chars-long";
+
+function getSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CONFIGURAÇÃO CRÍTICA AUSENTE: A variável de ambiente SESSION_SECRET é obrigatória em ambiente de produção."
+      );
+    }
+    return "saas-secure-session-key-dev-default-32-chars-long";
+  }
+  if (process.env.NODE_ENV === "production" && secret.length < 32) {
+    throw new Error(
+      "CONFIGURAÇÃO INSEGURA: A variável SESSION_SECRET deve conter no mínimo 32 caracteres em ambiente de produção."
+    );
+  }
+  return secret;
+}
 
 export interface SessionData {
   userId: string;
@@ -22,7 +38,7 @@ const encoder = new TextEncoder();
 async function getCryptoKey(): Promise<CryptoKey> {
   return await crypto.subtle.importKey(
     "raw",
-    encoder.encode(SESSION_SECRET),
+    encoder.encode(getSessionSecret()),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"]

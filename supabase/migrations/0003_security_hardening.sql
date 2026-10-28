@@ -91,3 +91,4 @@ USING (
 COMMENT ON FUNCTION public.handle_new_user() IS 'Trigger seguro para sincronização de perfil auth.users -> profiles. Força role=tenant_admin.';
 COMMENT ON FUNCTION public.is_superadmin() IS 'Verifica de forma segura com search_path fixo se o usuário logado possui role=superadmin.';
 COMMENT ON FUNCTION public.user_owns_tenant(UUID) IS 'Verifica com search_path fixo se o tenant pertence ao usuário autenticado.';
+

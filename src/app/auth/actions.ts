@@ -49,7 +49,12 @@ export async function loginAction(formData: FormData): Promise<void> {
     }
   }
 
-  // 2. Ambiente de Desenvolvimento / Homologação Local (Mock Seguro com Validação)
+  // 2. Bloqueio absoluto de fallback de homologação em ambiente de produção
+  if (process.env.NODE_ENV === "production") {
+    redirect("/login?error=invalid_credentials");
+  }
+
+  // 3. Ambiente de Desenvolvimento / Homologação Local (Mock Seguro com Validação)
   const knownProfiles: Record<string, string> = {
     "admin@saas.com": "admin-1",
     "aline@lumiere.com": "salon-owner-1",
