@@ -12,6 +12,16 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
+export function formatBRLPrice(priceInCents: number): string {
+  return formatCurrency(priceInCents / 100);
+}
+
+export function parseBRLPrice(input: string): number {
+  const cleaned = input.replace(/[^\d,\.]/g, "").replace(",", ".");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : Math.round(num * 100);
+}
+
 export function formatPhone(phone: string): string {
   const cleaned = phone.replace(/\D/g, "");
   if (cleaned.length === 11) {

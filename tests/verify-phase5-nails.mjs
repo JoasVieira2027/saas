@@ -55,3 +55,4 @@ test("4. Verificação de Formatação de Preços para Procedimentos de Unhas", 
   const formatted = formatCurrency(price);
   assert.match(formatted, /190/, "Preço de alongamento deve ser formatado corretamente no padrão BRL");
 });
+

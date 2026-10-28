@@ -434,7 +434,7 @@ let DEMO_PAGES: Record<string, LandingPage> = {
   },
 };
 
-const DEMO_SERVICES: Record<string, ServiceItem[]> = {
+let DEMO_SERVICES: Record<string, ServiceItem[]> = {
   "tenant-salon-1": [
     {
       id: "srv-1",
@@ -664,7 +664,7 @@ const DEMO_SERVICES: Record<string, ServiceItem[]> = {
   ],
 };
 
-const DEMO_HOURS: Record<string, BusinessHour[]> = {
+let DEMO_HOURS: Record<string, BusinessHour[]> = {
   "tenant-salon-1": [
     { id: "h1", tenant_id: "tenant-salon-1", day_of_week: 1, open_time: "Fechado", close_time: "", is_closed: true },
     { id: "h2", tenant_id: "tenant-salon-1", day_of_week: 2, open_time: "09:00", close_time: "19:00", is_closed: false },
@@ -920,6 +920,192 @@ export const dataService = {
     const newStatus = page.status === "published" ? "draft" : "published";
     page.status = newStatus;
     if (newStatus === "published") {
+      page.published_at = new Date().toISOString();
+    }
+    page.updated_at = new Date().toISOString();
+    return page;
+  },
+
+  // 10. Atualizar Dados do Tenant (Nome, Segmento/Template)
+  async updateTenant(tenantId: string, updates: { business_name?: string; segment?: "salon" | "barber" | "nails" }): Promise<Tenant | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("tenants").update(updates).eq("id", tenantId).select().single();
+      return data;
+    }
+    const tenant = DEMO_TENANTS.find((t) => t.id === tenantId);
+    if (!tenant) return null;
+    if (updates.business_name) tenant.business_name = updates.business_name;
+    if (updates.segment) {
+      tenant.segment = updates.segment;
+      // Atualiza também o template_id correspondente na landing page
+      const page = DEMO_PAGES[tenantId];
+      if (page) {
+        page.template_id = updates.segment;
+      }
+    }
+    tenant.updated_at = new Date().toISOString();
+    return tenant;
+  },
+
+  // 11. Obter Serviços do Tenant
+  async getServices(tenantId: string): Promise<ServiceItem[]> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("services").select("*").eq("tenant_id", tenantId).order("sort_order", { ascending: true });
+      return data || [];
+    }
+    return DEMO_SERVICES[tenantId] || [];
+  },
+
+  // 12. Adicionar Novo Serviço
+  async createService(
+    tenantId: string,
+    data: { name: string; description: string; category: string; price: number; duration_minutes: number; is_active?: boolean }
+  ): Promise<ServiceItem> {
+    const newService: ServiceItem = {
+      id: `srv-${Date.now()}`,
+      tenant_id: tenantId,
+      name: data.name,
+      description: data.description,
+      category: data.category || "Geral",
+      price: data.price,
+      duration_minutes: data.duration_minutes || 60,
+      is_active: data.is_active ?? true,
+      sort_order: (DEMO_SERVICES[tenantId]?.length || 0) + 1,
+      created_at: new Date().toISOString(),
+    };
+
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data: created } = await supabase.from("services").insert(newService).select().single();
+      if (created) return created;
+    }
+
+    if (!DEMO_SERVICES[tenantId]) {
+      DEMO_SERVICES[tenantId] = [];
+    }
+    DEMO_SERVICES[tenantId].push(newService);
+    return newService;
+  },
+
+  // 13. Atualizar Serviço Existente
+  async updateService(
+    tenantId: string,
+    serviceId: string,
+    updates: Partial<ServiceItem>
+  ): Promise<ServiceItem | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("services").update(updates).eq("id", serviceId).eq("tenant_id", tenantId).select().single();
+      return data;
+    }
+
+    const list = DEMO_SERVICES[tenantId] || [];
+    const index = list.findIndex((s) => s.id === serviceId);
+    if (index === -1) return null;
+
+    list[index] = { ...list[index], ...updates };
+    return list[index];
+  },
+
+  // 14. Remover Serviço
+  async deleteService(tenantId: string, serviceId: string): Promise<boolean> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { error } = await supabase.from("services").delete().eq("id", serviceId).eq("tenant_id", tenantId);
+      return !error;
+    }
+
+    if (!DEMO_SERVICES[tenantId]) return false;
+    DEMO_SERVICES[tenantId] = DEMO_SERVICES[tenantId].filter((s) => s.id !== serviceId);
+    return true;
+  },
+
+  // 15. Adicionar Imagem à Galeria
+  async addGalleryImage(
+    tenantId: string,
+    image: { url: string; title: string; alt?: string }
+  ): Promise<LandingPage | null> {
+    const page = DEMO_PAGES[tenantId];
+    if (!page) return null;
+
+    if (!page.gallery) {
+      page.gallery = [];
+    }
+
+    page.gallery.push({
+      id: `gal-${Date.now()}`,
+      url: image.url,
+      title: image.title,
+      alt: image.alt || image.title,
+    });
+    page.updated_at = new Date().toISOString();
+    return page;
+  },
+
+  // 16. Remover Imagem da Galeria
+  async deleteGalleryImage(tenantId: string, imageId: string): Promise<LandingPage | null> {
+    const page = DEMO_PAGES[tenantId];
+    if (!page || !page.gallery) return null;
+
+    page.gallery = page.gallery.filter((img) => img.id !== imageId);
+    page.updated_at = new Date().toISOString();
+    return page;
+  },
+
+  // 17. Obter e Atualizar Horários
+  async getBusinessHours(tenantId: string): Promise<BusinessHour[]> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("business_hours").select("*").eq("tenant_id", tenantId).order("day_of_week", { ascending: true });
+      return data || [];
+    }
+    return DEMO_HOURS[tenantId] || [];
+  },
+
+  async updateBusinessHour(
+    tenantId: string,
+    dayOfWeek: number,
+    openTime: string,
+    closeTime: string,
+    isClosed: boolean
+  ): Promise<boolean> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { error } = await supabase
+        .from("business_hours")
+        .upsert({ tenant_id: tenantId, day_of_week: dayOfWeek, open_time: openTime, close_time: closeTime, is_closed: isClosed });
+      return !error;
+    }
+
+    const hours = DEMO_HOURS[tenantId] || [];
+    const item = hours.find((h) => h.day_of_week === dayOfWeek);
+    if (item) {
+      item.open_time = openTime;
+      item.close_time = closeTime;
+      item.is_closed = isClosed;
+    } else {
+      hours.push({
+        id: `h-${Date.now()}`,
+        tenant_id: tenantId,
+        day_of_week: dayOfWeek,
+        open_time: openTime,
+        close_time: closeTime,
+        is_closed: isClosed,
+      });
+      DEMO_HOURS[tenantId] = hours;
+    }
+    return true;
+  },
+
+  // 18. Alterar Status Explícito da Página
+  async setPageStatus(tenantId: string, status: "draft" | "published"): Promise<LandingPage | null> {
+    const page = DEMO_PAGES[tenantId];
+    if (!page) return null;
+
+    page.status = status;
+    if (status === "published") {
       page.published_at = new Date().toISOString();
     }
     page.updated_at = new Date().toISOString();

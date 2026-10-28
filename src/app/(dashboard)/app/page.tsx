@@ -3,7 +3,20 @@ import { requireTenant } from "@/lib/auth";
 import { dataService } from "@/lib/supabase/data-service";
 import { togglePublishAction } from "./actions";
 import { SEGMENT_LABELS } from "@/lib/utils";
-import { Globe, CheckCircle2, AlertCircle, ExternalLink, ArrowRight, Sparkles, MessageCircle, MapPin } from "lucide-react";
+import {
+  Edit3,
+  Smartphone,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Sparkles,
+  Scissors,
+  Crown,
+  Layers,
+  Image as ImageIcon,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react";
 
 export default async function TenantDashboardPage() {
   const session = await requireTenant();
@@ -21,18 +34,34 @@ export default async function TenantDashboardPage() {
   }
 
   const page = await dataService.getLandingPageByTenantId(tenant.id);
+  const services = await dataService.getServices(tenant.id);
   const isPublished = page?.status === "published";
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      {/* Title */}
+      {/* Cabeçalho */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-800 text-amber-400 font-bold border border-neutral-700">
+              {SEGMENT_LABELS[tenant.segment]}
+            </span>
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full font-medium border ${
+                isPublished
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                  : "bg-amber-500/10 text-amber-300 border-amber-500/30"
+              }`}
+            >
+              {isPublished ? "Página Publicada" : "Modo Rascunho"}
+            </span>
+          </div>
+
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-serif">
             {tenant.business_name}
           </h1>
           <p className="mt-1 text-sm text-neutral-400">
-            Gerencie o status de publicação da sua landing page e informações para seus clientes.
+            Personalize seu site, gerencie procedimentos e visualize as mudanças antes de publicar.
           </p>
         </div>
 
@@ -43,13 +72,13 @@ export default async function TenantDashboardPage() {
             className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-md ${
               isPublished
                 ? "bg-rose-500/10 text-rose-300 border border-rose-500/30 hover:bg-rose-500/20"
-                : "bg-emerald-500 text-neutral-950 hover:bg-emerald-400 shadow-emerald-500/20"
+                : "bg-emerald-500 text-neutral-950 hover:bg-emerald-400 shadow-emerald-500/20 active:scale-95 font-bold"
             }`}
           >
             {isPublished ? (
               <>
                 <AlertCircle className="w-4 h-4" />
-                <span>Despublicar Página (Rascunho)</span>
+                <span>Despublicar Página</span>
               </>
             ) : (
               <>
@@ -61,50 +90,83 @@ export default async function TenantDashboardPage() {
         </form>
       </div>
 
-      {/* Status Cards */}
+      {/* Ações Principais de Destaque */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <Link
+          href="/app/editor"
+          className="p-6 rounded-2xl bg-neutral-950 border border-neutral-800 hover:border-amber-500/60 transition-all group flex flex-col justify-between shadow-xl"
+        >
+          <div>
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+              <Edit3 className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
+              Abrir Editor Visual
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
+              Altere o nome comercial, cores, foto de capa, textos de destaque, adicione procedimentos e fotos à sua galeria.
+            </p>
+          </div>
+
+          <div className="mt-6 flex items-center gap-1.5 text-xs text-amber-400 font-semibold group-hover:translate-x-1 transition-transform">
+            <span>Começar Edição</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+
+        <Link
+          href="/app/preview"
+          className="p-6 rounded-2xl bg-neutral-950 border border-neutral-800 hover:border-amber-500/60 transition-all group flex flex-col justify-between shadow-xl"
+        >
+          <div>
+            <div className="w-12 h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-neutral-200 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+              <Smartphone className="w-6 h-6 text-amber-400" />
+            </div>
+            <h2 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
+              Visualizar Preview Responsivo
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
+              Teste exatamente como sua landing page é exibida em telas de celulares (iPhone/Android), iPads e computadores.
+            </p>
+          </div>
+
+          <div className="mt-6 flex items-center gap-1.5 text-xs text-neutral-300 font-semibold group-hover:translate-x-1 transition-transform">
+            <span>Abrir Simulador de Dispositivos</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+      </div>
+
+      {/* Cards de Métricas & Conteúdo */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Status da Página */}
         <div className="p-4 sm:p-5 rounded-xl bg-neutral-950 border border-neutral-800">
-          <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-            Status da Página
+          <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Procedimentos</span>
+            <Layers className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                isPublished ? "bg-emerald-400 animate-pulse" : "bg-neutral-500"
-              }`}
-            />
-            <span className="text-lg font-bold text-white">
-              {isPublished ? "Publicada e Acessível" : "Em Rascunho"}
-            </span>
+          <div className="text-2xl sm:text-3xl font-bold text-white">
+            {services.length}
           </div>
-          <p className="text-xs text-neutral-500 mt-1">
-            {isPublished
-              ? "Clientes já conseguem visualizar e agendar."
-              : "Visível apenas para você durante edição."}
-          </p>
+          <p className="text-xs text-neutral-500 mt-1">Serviços ativos no cardápio</p>
         </div>
 
-        {/* Template do Segmento */}
         <div className="p-4 sm:p-5 rounded-xl bg-neutral-950 border border-neutral-800">
-          <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-            Template Especializado
+          <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Galeria de Fotos</span>
+            <ImageIcon className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-lg font-bold text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>{SEGMENT_LABELS[tenant.segment]}</span>
+          <div className="text-2xl sm:text-3xl font-bold text-white">
+            {page?.gallery?.length || 0}
           </div>
-          <p className="text-xs text-neutral-500 mt-1">
-            Arquitetura preparada para o nicho de {SEGMENT_LABELS[tenant.segment]}.
-          </p>
+          <p className="text-xs text-neutral-500 mt-1">Trabalhos no portfólio</p>
         </div>
 
-        {/* Link Público */}
         <div className="p-4 sm:p-5 rounded-xl bg-neutral-950 border border-neutral-800">
-          <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-            Endereço da Página
+          <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Endereço Público</span>
+            <ExternalLink className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-sm font-mono text-amber-400 truncate">
+          <div className="text-sm font-mono text-amber-400 truncate mt-1">
             /p/{tenant.slug}
           </div>
           <div className="mt-2">
@@ -113,81 +175,12 @@ export default async function TenantDashboardPage() {
               target="_blank"
               className="inline-flex items-center gap-1 text-xs text-neutral-300 hover:text-white font-medium"
             >
-              <span>Abrir em nova aba</span>
+              <span>Abrir página pública</span>
               <ExternalLink className="w-3 h-3" />
             </Link>
           </div>
         </div>
       </div>
-
-      {/* Detalhes Atuais da Landing Page */}
-      {page && (
-        <div className="p-5 sm:p-6 rounded-2xl bg-neutral-950 border border-neutral-800 space-y-6">
-          <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
-            <div>
-              <h2 className="text-base font-semibold text-white">Conteúdo Principal da Página</h2>
-              <p className="text-xs text-neutral-400">
-                Resumo dos dados visíveis para os visitantes.
-              </p>
-            </div>
-            <Link
-              href="/app/settings"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-700 bg-neutral-900 text-xs text-neutral-200 hover:text-white transition-colors"
-            >
-              <span>Editar Informações</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <div className="text-xs text-neutral-500 font-medium">Título Principal (Headline)</div>
-                <div className="text-sm font-semibold text-white mt-0.5">
-                  {page.hero_section.headline}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-xs text-neutral-500 font-medium">Subtítulo Explicativo</div>
-                <div className="text-xs text-neutral-300 mt-0.5">
-                  {page.hero_section.subheadline}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-xs text-neutral-500 font-medium">Texto do Botão CTA</div>
-                <div className="inline-block px-2.5 py-1 rounded bg-amber-500/10 text-amber-300 text-xs font-semibold mt-1">
-                  {page.hero_section.cta_text}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start gap-2.5">
-                <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="text-xs text-neutral-500 font-medium">WhatsApp de Agendamento</div>
-                  <div className="text-sm font-mono text-white mt-0.5">
-                    {page.contact_info.whatsapp_number}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="text-xs text-neutral-500 font-medium">Localização</div>
-                  <div className="text-xs text-neutral-300 mt-0.5">
-                    {page.contact_info.address_street}, {page.contact_info.address_neighborhood} - {page.contact_info.address_city}/{page.contact_info.address_state}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
-

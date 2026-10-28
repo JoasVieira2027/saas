@@ -3,7 +3,7 @@ import { requireTenant } from "@/lib/auth";
 import { dataService } from "@/lib/supabase/data-service";
 import { logoutAction } from "@/app/auth/actions";
 import { SEGMENT_LABELS } from "@/lib/utils";
-import { LayoutDashboard, Sliders, ExternalLink, LogOut, Sparkles, Scissors, Crown } from "lucide-react";
+import { LayoutDashboard, Edit3, Smartphone, ExternalLink, LogOut, Sparkles, Scissors, Crown } from "lucide-react";
 
 export default async function TenantLayout({
   children,
@@ -48,25 +48,33 @@ export default async function TenantLayout({
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/80 transition-colors"
             >
               <LayoutDashboard className="w-4 h-4 text-amber-400" />
-              <span>Visão da Página</span>
+              <span>Visão Geral</span>
             </Link>
 
             <Link
-              href="/app/settings"
+              href="/app/editor"
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/80 transition-colors"
             >
-              <Sliders className="w-4 h-4 text-amber-400" />
-              <span>Dados & WhatsApp</span>
+              <Edit3 className="w-4 h-4 text-amber-400" />
+              <span>Editor do Site</span>
+            </Link>
+
+            <Link
+              href="/app/preview"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/80 transition-colors"
+            >
+              <Smartphone className="w-4 h-4 text-amber-400" />
+              <span>Visualizar Preview</span>
             </Link>
 
             {tenant && (
               <Link
                 href={`/p/${tenant.slug}`}
                 target="_blank"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors border border-amber-500/20"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors border border-amber-500/20 mt-2"
               >
                 <ExternalLink className="w-4 h-4" />
-                <span>Ver Minha Página no Ar</span>
+                <span>Página no Ar</span>
               </Link>
             )}
           </nav>
@@ -97,4 +105,3 @@ export default async function TenantLayout({
     </div>
   );
 }
-
