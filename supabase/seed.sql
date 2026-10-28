@@ -22,3 +22,4 @@ VALUES
     ('22222222-2222-2222-2222-222222222222', 'barber', 'published', 'Navalha de Ouro Barber Club | Cortes Clássicos & Barba', 'Cortes modernos, barboterapia tradicional e ambiente exclusivo.'),
     ('33333333-3333-3333-3333-333333333333', 'nails', 'published', 'Studio Gisele Nail Art | Alongamento em Gel', 'Especialista em unhas de fibra e gel com acabamento natural e alta durabilidade.')
 ON CONFLICT (tenant_id) DO NOTHING;
+

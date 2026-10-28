@@ -13,3 +13,4 @@ export interface PublicLandingPageData {
 }
 
 export type TemplateVariant = "salon" | "barber" | "nails";
+

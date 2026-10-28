@@ -96,3 +96,4 @@ test("4. Validação dos Contratos dos 3 Segmentos de Beleza", () => {
   assert.ok(allowedSegments.includes("barber"), "Segmento barbearia deve estar previsto");
   assert.ok(allowedSegments.includes("nails"), "Segmento unhas em gel deve estar previsto");
 });
+

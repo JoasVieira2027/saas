@@ -40,3 +40,4 @@ export const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   suspended: { label: "Suspenso", color: "bg-rose-50 text-rose-700 border-rose-200" },
   trial: { label: "Período de Testes", color: "bg-amber-50 text-amber-700 border-amber-200" },
 };
+

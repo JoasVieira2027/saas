@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { dataService } from "@/lib/supabase/data-service";
 import { formatCurrency, formatWhatsAppUrl, SEGMENT_LABELS } from "@/lib/utils";
+import { SalonTemplate } from "@/components/templates/salon";
 import { Sparkles, Scissors, Crown, MessageCircle, MapPin, Clock, ShieldAlert, ArrowLeft } from "lucide-react";
 
 export default async function PublicLandingPage({
@@ -18,7 +19,7 @@ export default async function PublicLandingPage({
 
   const { tenant, page, services, business_hours } = data;
 
-  // Verificação de isolamento: Tenant suspenso não deve ser servido
+  // 1. Verificação de isolamento: Tenant suspenso não deve ser servido
   if (tenant.status === "suspended") {
     return (
       <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-4">
@@ -44,7 +45,7 @@ export default async function PublicLandingPage({
     );
   }
 
-  // Verificação de status da página: Rascunho
+  // 2. Verificação de status da página: Rascunho
   if (page.status === "draft") {
     return (
       <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-4">
@@ -70,6 +71,12 @@ export default async function PublicLandingPage({
     );
   }
 
+  // 3. Renderização Especializada: Template de Salão de Beleza (Fase 3)
+  if (page.template_id === "salon" || tenant.segment === "salon") {
+    return <SalonTemplate data={data} />;
+  }
+
+  // 4. Renderização Base para os demais templates (serão detalhados nas próximas fases)
   const whatsappUrl = formatWhatsAppUrl(
     page.contact_info.whatsapp_number,
     page.contact_info.whatsapp_default_message
@@ -77,7 +84,6 @@ export default async function PublicLandingPage({
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between selection:bg-amber-500 selection:text-neutral-950">
-      {/* Top Bar Demonstrativa da Fase 2 */}
       <div className="bg-neutral-900 border-b border-neutral-800 px-4 py-2 text-center text-xs text-neutral-400 flex items-center justify-center gap-2">
         <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
         <span>Página Oficial de {tenant.business_name}</span>
@@ -85,12 +91,10 @@ export default async function PublicLandingPage({
         <span className="text-amber-400">Nicho: {SEGMENT_LABELS[tenant.segment]}</span>
       </div>
 
-      {/* Hero Section Base */}
       <header className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-xs text-amber-400 font-medium mb-6">
           {tenant.segment === "barber" && <Scissors className="w-3.5 h-3.5" />}
           {tenant.segment === "nails" && <Crown className="w-3.5 h-3.5" />}
-          {tenant.segment === "salon" && <Sparkles className="w-3.5 h-3.5" />}
           <span>{page.hero_section.badge}</span>
         </div>
 
@@ -102,7 +106,6 @@ export default async function PublicLandingPage({
           {page.hero_section.subheadline}
         </p>
 
-        {/* CTA Principal WhatsApp */}
         <div className="mt-8 flex justify-center">
           <a
             href={whatsappUrl}
@@ -116,7 +119,6 @@ export default async function PublicLandingPage({
         </div>
       </header>
 
-      {/* Catálogo de Serviços Base */}
       {services.length > 0 && (
         <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
           <div className="text-center mb-8">
@@ -164,57 +166,6 @@ export default async function PublicLandingPage({
         </section>
       )}
 
-      {/* Informações de Localização e Horários */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full border-t border-neutral-850">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Endereço */}
-          <div className="p-5 rounded-xl bg-neutral-900/60 border border-neutral-800">
-            <div className="flex items-center gap-2 text-amber-400 text-sm font-semibold mb-2">
-              <MapPin className="w-4 h-4" />
-              <span>Onde Estamos</span>
-            </div>
-            <p className="text-sm text-neutral-300">
-              {page.contact_info.address_street}
-            </p>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              {page.contact_info.address_neighborhood} • {page.contact_info.address_city}/{page.contact_info.address_state}
-            </p>
-            {page.contact_info.instagram_handle && (
-              <p className="text-xs text-amber-400 mt-2 font-mono">
-                Instagram: {page.contact_info.instagram_handle}
-              </p>
-            )}
-          </div>
-
-          {/* Horários */}
-          <div className="p-5 rounded-xl bg-neutral-900/60 border border-neutral-800">
-            <div className="flex items-center gap-2 text-amber-400 text-sm font-semibold mb-2">
-              <Clock className="w-4 h-4" />
-              <span>Horários de Funcionamento</span>
-            </div>
-            <div className="space-y-1 text-xs text-neutral-300">
-              <p>Segunda a Sexta: 09:00 às 20:00</p>
-              <p>Sábado: 08:30 às 19:00</p>
-              <p className="text-neutral-500">Domingo: Fechado</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Botão Flutuante de WhatsApp (Mobile e Desktop) */}
-      <div className="fixed bottom-5 right-5 z-50">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Fale conosco no WhatsApp"
-          className="w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 flex items-center justify-center shadow-xl shadow-emerald-500/30 transition-transform hover:scale-105 active:scale-95"
-        >
-          <MessageCircle className="w-7 h-7 fill-neutral-950 text-emerald-500" />
-        </a>
-      </div>
-
-      {/* Footer */}
       <footer className="border-t border-neutral-900 py-6 text-center text-xs text-neutral-500">
         <p>{tenant.business_name} • Página desenvolvida na GlowSaaS</p>
       </footer>

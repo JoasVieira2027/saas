@@ -62,6 +62,27 @@ export interface ContactInfo {
   instagram_handle: string;
 }
 
+export interface GalleryImage {
+  id: string;
+  url: string;
+  title: string;
+  alt: string;
+}
+
+export interface DifferentialItem {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  image_url: string;
+  specialty?: string;
+}
+
 export interface LandingPage {
   id: string;
   tenant_id: string;
@@ -71,6 +92,9 @@ export interface LandingPage {
   hero_section: HeroSection;
   about_section: AboutSection;
   contact_info: ContactInfo;
+  gallery?: GalleryImage[];
+  differentials?: DifferentialItem[];
+  team?: TeamMember[];
   seo_title: string;
   seo_description: string;
   published_at?: string | null;

@@ -24,3 +24,4 @@ export interface UpdateTenantDTO {
   status?: "active" | "suspended" | "trial";
   plan_type?: "starter" | "pro";
 }
+
