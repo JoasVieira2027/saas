@@ -5,3 +5,4 @@ ALTER TABLE public.landing_pages
   ADD COLUMN IF NOT EXISTS gallery JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 COMMENT ON COLUMN public.landing_pages.gallery IS 'Array JSON de objetos GalleryImage: [{id, url, title, alt}]';
+
