@@ -20,8 +20,13 @@ export default async function PublicLandingPage({
 
   const { tenant, page } = data;
 
-  // 1. Verificação de isolamento: Tenant suspenso não deve ser servido
-  if (tenant.status === "suspended") {
+  // 1. Verificação de isolamento: Tenant suspenso ou com assinatura suspensa/cancelada não deve ser servido
+  const isSuspendedOrCancelled =
+    tenant.status === "suspended" ||
+    tenant.subscription_status === "suspended" ||
+    tenant.subscription_status === "cancelled";
+
+  if (isSuspendedOrCancelled) {
     return (
       <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-4">
         <div className="max-w-md w-full p-8 rounded-2xl bg-neutral-900 border border-neutral-800 text-center">
@@ -30,7 +35,7 @@ export default async function PublicLandingPage({
           </div>
           <h1 className="text-xl font-bold text-white font-serif">Página Temporariamente Indisponível</h1>
           <p className="mt-2 text-sm text-neutral-400">
-            O acesso a esta página está suspenso. Se você é o responsável por {tenant.business_name}, regularize o acesso no painel de controle.
+            O acesso público a esta página está suspenso. Se você é o responsável por {tenant.business_name}, regularize sua assinatura ou entre em contato com o suporte no painel de controle.
           </p>
           <div className="mt-6">
             <Link

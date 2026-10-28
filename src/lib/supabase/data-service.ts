@@ -1,5 +1,15 @@
 import { createClient } from "./server";
-import { Tenant, LandingPage, ServiceItem, BusinessHour, Profile } from "@/types/database";
+import {
+  Tenant,
+  LandingPage,
+  ServiceItem,
+  BusinessHour,
+  Profile,
+  SubscriptionPayment,
+  AdminAuditLog,
+  SubscriptionStatus,
+  PaymentMethod,
+} from "@/types/database";
 
 // Base de dados em memória para demonstração e testes locais offline
 const DEMO_PROFILES: Record<string, Profile> = {
@@ -42,6 +52,12 @@ let DEMO_TENANTS: Tenant[] = [
     segment: "salon",
     plan_type: "pro",
     status: "active",
+    subscription_status: "active",
+    monthly_price_cents: 19700,
+    due_day: 15,
+    next_due_date: "2026-03-15",
+    last_payment_date: "2026-02-15T10:00:00Z",
+    internal_notes: "Cliente premium. Solicitou orientações sobre expansão de catálogo de tratamentos.",
     created_at: "2026-01-10T10:00:00Z",
     updated_at: "2026-02-15T14:30:00Z",
   },
@@ -53,6 +69,12 @@ let DEMO_TENANTS: Tenant[] = [
     segment: "barber",
     plan_type: "starter",
     status: "active",
+    subscription_status: "overdue",
+    monthly_price_cents: 9700,
+    due_day: 10,
+    next_due_date: "2026-02-10",
+    last_payment_date: "2026-01-10T14:30:00Z",
+    internal_notes: "Contato via WhatsApp em 22/02 prometendo regularização até o fim da semana.",
     created_at: "2026-01-15T11:00:00Z",
     updated_at: "2026-02-18T16:00:00Z",
   },
@@ -64,8 +86,86 @@ let DEMO_TENANTS: Tenant[] = [
     segment: "nails",
     plan_type: "starter",
     status: "active",
+    subscription_status: "pending",
+    monthly_price_cents: 9700,
+    due_day: 5,
+    next_due_date: "2026-03-05",
+    last_payment_date: null,
+    internal_notes: "Nova parceira em período de onboarding e setup da página.",
     created_at: "2026-02-01T09:00:00Z",
     updated_at: "2026-02-20T11:20:00Z",
+  },
+];
+
+let DEMO_PAYMENTS: SubscriptionPayment[] = [
+  {
+    id: "pay-1",
+    tenant_id: "tenant-salon-1",
+    amount_cents: 19700,
+    paid_at: "2026-02-15T10:00:00Z",
+    due_date: "2026-02-15",
+    payment_method: "pix",
+    billing_period: "02/2026",
+    notes: "Comprovante enviado pelo WhatsApp",
+    recorded_by: "admin-1",
+    created_at: "2026-02-15T10:05:00Z",
+  },
+  {
+    id: "pay-2",
+    tenant_id: "tenant-salon-1",
+    amount_cents: 19700,
+    paid_at: "2026-01-15T09:30:00Z",
+    due_date: "2026-01-15",
+    payment_method: "pix",
+    billing_period: "01/2026",
+    notes: "Primeira mensalidade após onboarding",
+    recorded_by: "admin-1",
+    created_at: "2026-01-15T09:35:00Z",
+  },
+  {
+    id: "pay-3",
+    tenant_id: "tenant-barber-1",
+    amount_cents: 9700,
+    paid_at: "2026-01-10T14:30:00Z",
+    due_date: "2026-01-10",
+    payment_method: "boleto",
+    billing_period: "01/2026",
+    notes: "Boleto compensado",
+    recorded_by: "admin-1",
+    created_at: "2026-01-10T14:35:00Z",
+  },
+];
+
+let DEMO_AUDIT_LOGS: AdminAuditLog[] = [
+  {
+    id: "log-1",
+    admin_id: "admin-1",
+    admin_email: "admin@saas.com",
+    action: "publish_page",
+    target_tenant_id: "tenant-salon-1",
+    target_tenant_name: "Lumière Concept Hair & Spa",
+    details: { reason: "Página revisada e aprovada pelo cliente" },
+    created_at: "2026-02-15T14:30:00Z",
+  },
+  {
+    id: "log-2",
+    admin_id: "admin-1",
+    admin_email: "admin@saas.com",
+    action: "record_payment",
+    target_tenant_id: "tenant-salon-1",
+    target_tenant_name: "Lumière Concept Hair & Spa",
+    details: { amount_cents: 19700, method: "pix", period: "02/2026" },
+    created_at: "2026-02-15T10:05:00Z",
+  },
+  {
+    id: "log-3",
+    admin_id: "admin-1",
+    admin_email: "admin@saas.com",
+    action: "update_notes",
+    target_tenant_id: "tenant-barber-1",
+    target_tenant_name: "Navalha de Ouro Barber Club",
+    details: { note: "Registro de contato de cobrança preventiva" },
+    created_at: "2026-02-22T11:00:00Z",
   },
 ];
 
@@ -1110,6 +1210,262 @@ export const dataService = {
     }
     page.updated_at = new Date().toISOString();
     return page;
+  },
+
+  // 19. Buscar Tenant por ID
+  async getTenantById(tenantId: string): Promise<Tenant | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("tenants").select("*").eq("id", tenantId).single();
+      return data;
+    }
+    return DEMO_TENANTS.find((t) => t.id === tenantId) || null;
+  },
+
+  // 20. Atualizar Assinatura e Dados Financeiros do Tenant (Superadmin)
+  async updateTenantSubscription(
+    tenantId: string,
+    updates: {
+      subscription_status?: SubscriptionStatus;
+      monthly_price_cents?: number;
+      due_day?: number;
+      next_due_date?: string;
+      last_payment_date?: string | null;
+      plan_type?: "starter" | "pro";
+    }
+  ): Promise<Tenant | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("tenants").update(updates).eq("id", tenantId).select().single();
+      return data;
+    }
+
+    const tenant = DEMO_TENANTS.find((t) => t.id === tenantId);
+    if (!tenant) return null;
+
+    if (updates.subscription_status) tenant.subscription_status = updates.subscription_status;
+    if (updates.monthly_price_cents !== undefined) tenant.monthly_price_cents = updates.monthly_price_cents;
+    if (updates.due_day !== undefined) tenant.due_day = updates.due_day;
+    if (updates.next_due_date) tenant.next_due_date = updates.next_due_date;
+    if (updates.last_payment_date !== undefined) tenant.last_payment_date = updates.last_payment_date;
+    if (updates.plan_type) tenant.plan_type = updates.plan_type;
+    tenant.updated_at = new Date().toISOString();
+
+    return tenant;
+  },
+
+  // 21. Atualizar Observações Internas da Administração
+  async updateTenantInternalNotes(tenantId: string, notes: string): Promise<Tenant | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase.from("tenants").update({ internal_notes: notes }).eq("id", tenantId).select().single();
+      return data;
+    }
+
+    const tenant = DEMO_TENANTS.find((t) => t.id === tenantId);
+    if (!tenant) return null;
+    tenant.internal_notes = notes;
+    tenant.updated_at = new Date().toISOString();
+    return tenant;
+  },
+
+  // 22. Listar Pagamentos de um Tenant
+  async getPaymentsByTenant(tenantId: string): Promise<SubscriptionPayment[]> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase
+        .from("subscription_payments")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("paid_at", { ascending: false });
+      return data || [];
+    }
+    return DEMO_PAYMENTS.filter((p) => p.tenant_id === tenantId).sort(
+      (a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime()
+    );
+  },
+
+  // 23. Listar Todos os Pagamentos Recentes (Superadmin)
+  async getAllPayments(): Promise<SubscriptionPayment[]> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase
+        .from("subscription_payments")
+        .select("*")
+        .order("paid_at", { ascending: false });
+      return data || [];
+    }
+    return [...DEMO_PAYMENTS].sort(
+      (a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime()
+    );
+  },
+
+  // 24. Registrar Pagamento Manual (Superadmin)
+  async recordPayment(
+    data: {
+      tenant_id: string;
+      amount_cents: number;
+      paid_at?: string;
+      due_date: string;
+      payment_method: PaymentMethod;
+      billing_period: string;
+      notes?: string;
+    },
+    adminProfile: { id: string; email: string }
+  ): Promise<SubscriptionPayment> {
+    const paidAt = data.paid_at || new Date().toISOString();
+    const newPayment: SubscriptionPayment = {
+      id: `pay-${Date.now()}`,
+      tenant_id: data.tenant_id,
+      amount_cents: data.amount_cents,
+      paid_at: paidAt,
+      due_date: data.due_date,
+      payment_method: data.payment_method,
+      billing_period: data.billing_period,
+      notes: data.notes || "",
+      recorded_by: adminProfile.id,
+      created_at: new Date().toISOString(),
+    };
+
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      await supabase.from("subscription_payments").insert(newPayment);
+    } else {
+      DEMO_PAYMENTS.unshift(newPayment);
+    }
+
+    // Calcula próximo vencimento somando 30 dias ou 1 mês ao due_date
+    const currentDue = new Date(data.due_date);
+    const nextDue = new Date(currentDue);
+    nextDue.setMonth(nextDue.getMonth() + 1);
+    const nextDueStr = nextDue.toISOString().split("T")[0];
+
+    // Atualiza status do tenant para ativo e em dia
+    const tenant = await this.getTenantById(data.tenant_id);
+    if (tenant) {
+      await this.updateTenantSubscription(data.tenant_id, {
+        subscription_status: "active",
+        last_payment_date: paidAt,
+        next_due_date: nextDueStr,
+      });
+
+      // Registra no Log de Auditoria
+      await this.recordAuditLog({
+        admin_id: adminProfile.id,
+        admin_email: adminProfile.email,
+        action: "record_payment",
+        target_tenant_id: tenant.id,
+        target_tenant_name: tenant.business_name,
+        details: {
+          amount_cents: data.amount_cents,
+          payment_method: data.payment_method,
+          billing_period: data.billing_period,
+          next_due_date: nextDueStr,
+        },
+      });
+    }
+
+    return newPayment;
+  },
+
+  // 25. Obter Logs de Auditoria
+  async getAuditLogs(tenantId?: string): Promise<AdminAuditLog[]> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      let query = supabase.from("admin_audit_logs").select("*").order("created_at", { ascending: false });
+      if (tenantId) query = query.eq("target_tenant_id", tenantId);
+      const { data } = await query;
+      return data || [];
+    }
+
+    if (tenantId) {
+      return DEMO_AUDIT_LOGS.filter((l) => l.target_tenant_id === tenantId).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    }
+    return [...DEMO_AUDIT_LOGS].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  },
+
+  // 26. Registrar Log de Auditoria
+  async recordAuditLog(data: {
+    admin_id: string;
+    admin_email: string;
+    action: AdminAuditLog["action"];
+    target_tenant_id: string;
+    target_tenant_name: string;
+    details: Record<string, any>;
+  }): Promise<AdminAuditLog> {
+    const newLog: AdminAuditLog = {
+      id: `log-${Date.now()}`,
+      admin_id: data.admin_id,
+      admin_email: data.admin_email,
+      action: data.action,
+      target_tenant_id: data.target_tenant_id,
+      target_tenant_name: data.target_tenant_name,
+      details: data.details,
+      created_at: new Date().toISOString(),
+    };
+
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      await supabase.from("admin_audit_logs").insert(newLog);
+    } else {
+      DEMO_AUDIT_LOGS.unshift(newLog);
+    }
+
+    return newLog;
+  },
+
+  // 27. Resumo Financeiro & Métricas Executivas do Super Admin
+  async getFinancialSummary(): Promise<{
+    totalClients: number;
+    activeClients: number;
+    suspendedClients: number;
+    publishedPages: number;
+    overdueCount: number;
+    pendingCount: number;
+    mrrCents: number;
+  }> {
+    const tenants = await this.getAllTenants();
+    const pages = Object.values(DEMO_PAGES);
+
+    let activeClients = 0;
+    let suspendedClients = 0;
+    let overdueCount = 0;
+    let pendingCount = 0;
+    let mrrCents = 0;
+
+    for (const t of tenants) {
+      const subStatus = t.subscription_status || "active";
+      const monthly = t.monthly_price_cents || (t.plan_type === "pro" ? 19700 : 9700);
+
+      if (t.status === "suspended" || subStatus === "suspended") {
+        suspendedClients++;
+      } else {
+        activeClients++;
+        mrrCents += monthly;
+      }
+
+      if (subStatus === "overdue") {
+        overdueCount++;
+      } else if (subStatus === "pending") {
+        pendingCount++;
+      }
+    }
+
+    const publishedPages = pages.filter((p) => p.status === "published").length;
+
+    return {
+      totalClients: tenants.length,
+      activeClients,
+      suspendedClients,
+      publishedPages,
+      overdueCount,
+      pendingCount,
+      mrrCents,
+    };
   },
 };
 

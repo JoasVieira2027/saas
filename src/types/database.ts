@@ -2,6 +2,10 @@ export type UserRole = "superadmin" | "tenant_admin";
 
 export type TenantStatus = "active" | "suspended" | "trial";
 
+export type SubscriptionStatus = "active" | "pending" | "overdue" | "suspended" | "cancelled";
+
+export type PaymentMethod = "pix" | "boleto" | "credit_card" | "cash" | "bank_transfer";
+
 export type PlanType = "starter" | "pro";
 
 export type SegmentType = "salon" | "barber" | "nails";
@@ -25,8 +29,46 @@ export interface Tenant {
   custom_domain?: string | null;
   plan_type: PlanType;
   status: TenantStatus;
+  subscription_status?: SubscriptionStatus;
+  monthly_price_cents?: number;
+  due_day?: number;
+  next_due_date?: string;
+  last_payment_date?: string | null;
+  internal_notes?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface SubscriptionPayment {
+  id: string;
+  tenant_id: string;
+  amount_cents: number;
+  paid_at: string;
+  due_date: string;
+  payment_method: PaymentMethod;
+  billing_period: string; // Ex: "03/2026"
+  notes?: string;
+  recorded_by: string;
+  created_at: string;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  admin_id: string;
+  admin_email: string;
+  action:
+    | "suspend_tenant"
+    | "activate_tenant"
+    | "publish_page"
+    | "unpublish_page"
+    | "record_payment"
+    | "update_subscription"
+    | "update_notes"
+    | "create_tenant";
+  target_tenant_id: string;
+  target_tenant_name: string;
+  details: Record<string, any>;
+  created_at: string;
 }
 
 export interface LandingPageTheme {
