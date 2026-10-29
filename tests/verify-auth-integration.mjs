@@ -60,8 +60,8 @@ test("2. Prevenção de Elevação de Privilégios: Novos cadastros, OAuth e Upd
   );
 });
 
-// 3. Validação do Route Handler de OAuth (/auth/callback)
-test("3. Route Handler OAuth: /auth/callback processa código e cria perfil seguro", () => {
+// 3. Validação do Route Handler de OAuth (/auth/callback - Modelo Convite)
+test("3. Route Handler OAuth: /auth/callback processa código e valida acesso por convite", () => {
   const callbackPath = path.join(rootDir, "src", "app", "auth", "callback", "route.ts");
   assert.ok(fs.existsSync(callbackPath), "A rota /auth/callback/route.ts deve existir");
 
@@ -69,7 +69,7 @@ test("3. Route Handler OAuth: /auth/callback processa código e cria perfil segu
 
   assert.ok(callbackCode.includes("exchangeCodeForSession"), "Deve trocar o código de autorização por sessão");
   assert.ok(callbackCode.includes("dataService.getProfile"), "Deve buscar o perfil do usuário logado");
-  assert.ok(callbackCode.includes("dataService.ensureProfile"), "Deve garantir a criação de perfil caso não exista");
+  assert.ok(callbackCode.includes("invite_required"), "Deve barrar usuários sem convite pré-existente");
   assert.ok(callbackCode.includes("setSession(profile)"), "Deve assinar a sessão com HMAC");
   assert.ok(callbackCode.includes('profile.role === "superadmin"'), "Deve validar se é superadmin para redirecionar");
 });

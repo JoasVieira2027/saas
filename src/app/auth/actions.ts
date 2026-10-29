@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { setSession, clearSession } from "@/lib/auth";
 import { dataService } from "@/lib/supabase/data-service";
 import { createClient } from "@/lib/supabase/server";
@@ -13,14 +14,14 @@ export async function loginAction(formData: FormData): Promise<void> {
     redirect("/login?error=missing_email");
   }
 
-  // 1. Em produção com Supabase ao vivo configurado, autentica via credenciais Supabase Auth
+  // 1. Quando o Supabase real está configurado, autentica via credenciais Supabase Auth
   const isSupabaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("mock-project") &&
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("your-project")
   );
 
-  if (process.env.NODE_ENV === "production" && isSupabaseConfigured) {
+  if (isSupabaseConfigured) {
     if (!password) {
       redirect("/login?error=missing_password");
     }
@@ -35,9 +36,16 @@ export async function loginAction(formData: FormData): Promise<void> {
       redirect("/login?error=invalid_credentials");
     }
 
-    const profile = await dataService.getProfile(data.user.id);
+    // Busca o perfil do usuário pelo id ou pelo e-mail (modelo de acesso exclusivo por convite)
+    let profile = await dataService.getProfile(data.user.id);
+    if (!profile && email) {
+      profile = await dataService.getProfileByEmail(email);
+    }
+
     if (!profile) {
-      redirect("/login?error=profile_not_found");
+      // Usuário autenticado no Auth mas sem perfil no SaaS (sem convite/autorização)
+      await supabase.auth.signOut();
+      redirect("/login?error=invite_required");
     }
 
     await setSession(profile);
@@ -54,7 +62,7 @@ export async function loginAction(formData: FormData): Promise<void> {
     redirect("/login?error=invalid_credentials");
   }
 
-  // 3. Ambiente de Desenvolvimento / Homologação Local (Mock Seguro com Validação)
+  // 3. Ambiente de Desenvolvimento / Homologação Local Offline (Mock com Validação)
   const knownProfiles: Record<string, string> = {
     "admin@saas.com": "admin-1",
     "aline@lumiere.com": "salon-owner-1",
@@ -68,7 +76,7 @@ export async function loginAction(formData: FormData): Promise<void> {
     redirect("/login?error=not_found");
   }
 
-  // Em modo de desenvolvimento, exige preenchimento de senha
+  // Em modo de desenvolvimento offline, exige preenchimento de senha
   if (!password) {
     redirect("/login?error=missing_password");
   }
@@ -152,7 +160,12 @@ export async function loginWithGoogleAction(): Promise<void> {
   }
 
   const supabase = await createClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  // Resolve a URL base real considerando headers do proxy/Vercel
+  const headerList = await headers();
+  const host = headerList.get("x-forwarded-host") || headerList.get("host");
+  const proto = headerList.get("x-forwarded-proto") || (process.env.NODE_ENV === "production" ? "https" : "http");
+  const appUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -188,7 +201,11 @@ export async function resetPasswordAction(formData: FormData): Promise<void> {
   if (isRealSupabase) {
     try {
       const supabase = await createClient();
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const headerList = await headers();
+      const host = headerList.get("x-forwarded-host") || headerList.get("host");
+      const proto = headerList.get("x-forwarded-proto") || (process.env.NODE_ENV === "production" ? "https" : "http");
+      const appUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+
       await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${appUrl}/auth/callback?next=/app/settings`,
       });

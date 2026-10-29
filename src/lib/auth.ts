@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { Profile } from "@/types/database";
 
-const SESSION_COOKIE_NAME = "saas_auth_session";
+export const SESSION_COOKIE_NAME = "saas_auth_session";
 
 function getSessionSecret(): string {
   const secret = process.env.SESSION_SECRET;

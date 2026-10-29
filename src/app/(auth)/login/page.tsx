@@ -48,12 +48,15 @@ export default async function LoginPage({
                 {params.error === "missing_email" && "Por favor, informe seu e-mail."}
                 {params.error === "missing_password" && "Por favor, informe sua senha."}
                 {params.error === "profile_not_found" && "Perfil de usuário não encontrado."}
+                {params.error === "invite_required" && "Acesso exclusivo por convite. Esta conta não possui autorização de acesso ao GlowSaaS."}
+                {params.error === "auth_required" && "Faça login para acessar o painel."}
+                {params.error === "unauthorized" && "Você não possui permissão para acessar esta área."}
                 {params.error === "not_found" && "Usuário não localizado."}
                 {params.error === "oauth_not_configured_local" && "Login com Google indisponível em ambiente local offline."}
                 {params.error === "oauth_failed" && "Falha na autenticação via Google. Tente novamente."}
                 {params.error === "oauth_missing_code" && "Código de autorização não retornado pelo provedor."}
                 {params.error === "oauth_error" && "Erro durante a troca de credenciais do Google."}
-                {!["invalid_credentials", "missing_email", "missing_password", "profile_not_found", "not_found", "oauth_not_configured_local", "oauth_failed", "oauth_missing_code", "oauth_error"].includes(params.error) &&
+                {!["invalid_credentials", "missing_email", "missing_password", "profile_not_found", "invite_required", "auth_required", "unauthorized", "not_found", "oauth_not_configured_local", "oauth_failed", "oauth_missing_code", "oauth_error"].includes(params.error) &&
                   "Falha na autenticação. Verifique os dados e tente novamente."}
               </span>
             </div>

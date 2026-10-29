@@ -845,7 +845,38 @@ export const dataService = {
     return DEMO_PROFILES[userId] || null;
   },
 
-  // 1.1 Garantir Existência de Perfil (Para novos cadastros via Google OAuth ou e-mail)
+  // 1.1 Obter Perfil por E-mail (Para validação de convite e login Google/OAuth)
+  async getProfileByEmail(email: string): Promise<Profile | null> {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) return null;
+
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", normalizedEmail)
+        .maybeSingle();
+
+      if (data) {
+        return {
+          id: (data.id as string) || (data.user_id as string),
+          email: (data.email as string) || normalizedEmail,
+          full_name: (data.full_name as string) || (data.name as string) || "Usuário",
+          role: (data.role as Profile["role"]) || "tenant_admin",
+          created_at: (data.created_at as string) || new Date().toISOString(),
+        };
+      }
+      return null;
+    }
+
+    const demoProfile = Object.values(DEMO_PROFILES).find(
+      (p) => p.email.toLowerCase() === normalizedEmail
+    );
+    return demoProfile || null;
+  },
+
+  // 1.2 Garantir Existência de Perfil (Para novos cadastros via Google OAuth ou e-mail)
   async ensureProfile(userId: string, email: string, fullName: string): Promise<Profile | null> {
     if (isLiveSupabaseConfigured()) {
       const supabase = await createClient();
