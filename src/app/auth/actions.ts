@@ -137,3 +137,66 @@ export async function logoutAction(): Promise<void> {
   await clearSession();
   redirect("/login");
 }
+
+// 4. Iniciar Fluxo de Login com Google OAuth
+export async function loginWithGoogleAction(): Promise<void> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const isRealSupabase =
+    supabaseUrl.length > 0 &&
+    !supabaseUrl.includes("mock-project") &&
+    !supabaseUrl.includes("your-project");
+
+  if (!isRealSupabase) {
+    // Em modo de testes locais/offline
+    redirect("/login?error=oauth_not_configured_local");
+  }
+
+  const supabase = await createClient();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${appUrl}/auth/callback`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+
+  if (error || !data.url) {
+    redirect("/login?error=oauth_init_failed");
+  }
+
+  redirect(data.url);
+}
+
+// 5. Solicitar Redefinição de Senha
+export async function resetPasswordAction(formData: FormData): Promise<void> {
+  const email = (formData.get("email") as string)?.toLowerCase().trim();
+  if (!email) {
+    redirect("/login?error=missing_email");
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const isRealSupabase =
+    supabaseUrl.length > 0 &&
+    !supabaseUrl.includes("mock-project") &&
+    !supabaseUrl.includes("your-project");
+
+  if (isRealSupabase) {
+    try {
+      const supabase = await createClient();
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${appUrl}/auth/callback?next=/app/settings`,
+      });
+    } catch {
+      // Silencia falhas para evitar user enumeration
+    }
+  }
+
+  // Resposta segura e padronizada para prevenir vazamento de dados
+  redirect("/login?status=reset_email_sent");
+}

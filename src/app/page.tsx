@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Sparkles,
   Scissors,
@@ -11,328 +12,369 @@ import {
   Calendar,
   MessageCircle,
   HelpCircle,
-  Eye,
-  Globe,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  ChevronRight,
 } from "lucide-react";
 
 export const metadata = {
-  title: "GlowSaaS | Sua Página Profissional de Beleza Pronta para Converter",
+  title: "GlowSaaS — Páginas Profissionais para Especialistas da Beleza",
   description:
-    "Crie uma landing page profissional para seu salão de beleza, barbearia ou espaço de nail design. Apresente serviços, preços, fotos e receba agendamentos pelo WhatsApp.",
+    "Páginas elegantes, rápidas e orientadas à conversão para salões de beleza, barbearias e nail designers. Apresente serviços, fotos e receba agendamentos no WhatsApp.",
 };
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between selection:bg-amber-500/30 selection:text-amber-200">
-      {/* 1. Header / Navegação */}
-      <header className="border-b border-neutral-800/80 bg-neutral-950/80 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-[#FBF9F5] text-[#1C1917] selection:bg-[#EAE0D5] selection:text-[#1C1917] font-sans antialiased">
+      {/* ─────────────────────────────────────────────────────────────
+          1. CABEÇALHO (Compacto, elegante, editorial)
+         ───────────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 bg-[#FBF9F5]/90 backdrop-blur-md border-b border-[#EAE4DC] transition-all">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Logo e Nome */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-200 flex items-center justify-center text-neutral-950 font-bold shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+            <span className="w-8 h-8 rounded-lg bg-[#1C1917] text-[#FAF8F5] flex items-center justify-center font-serif font-bold text-base shadow-sm group-hover:bg-[#2D2825] transition-colors">
               G
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-bold tracking-tight text-xl text-white font-serif">GlowSaaS</span>
-              <span className="hidden sm:inline-block text-[11px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">
-                Páginas Profissionais
-              </span>
-            </div>
+            </span>
+            <span className="font-serif font-bold text-lg tracking-tight text-[#1C1917]">
+              GlowSaaS
+            </span>
           </Link>
 
-          {/* Links de ancoragem de navegação */}
-          <nav className="hidden md:flex items-center gap-6 text-xs lg:text-sm text-neutral-400 font-medium">
-            <a href="#modelos" className="hover:text-amber-300 transition-colors">
+          {/* Navegação Curta */}
+          <nav className="hidden md:flex items-center gap-7 text-xs font-medium text-[#57534E]">
+            <a href="#modelos" className="hover:text-[#1C1917] transition-colors">
               Modelos
             </a>
-            <a href="#beneficios" className="hover:text-amber-300 transition-colors">
-              Benefícios
+            <a href="#beneficios" className="hover:text-[#1C1917] transition-colors">
+              Recursos
             </a>
-            <a href="#como-funciona" className="hover:text-amber-300 transition-colors">
+            <a href="#como-funciona" className="hover:text-[#1C1917] transition-colors">
               Como Funciona
             </a>
-            <a href="#planos" className="hover:text-amber-300 transition-colors">
-              Planos
+            <a href="#condicoes" className="hover:text-[#1C1917] transition-colors">
+              Assinatura
             </a>
-            <a href="#duvidas" className="hover:text-amber-300 transition-colors">
+            <a href="#duvidas" className="hover:text-[#1C1917] transition-colors">
               Dúvidas
             </a>
           </nav>
 
-          {/* Ações do Header */}
+          {/* Ações */}
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-xs sm:text-sm font-medium text-neutral-300 hover:text-white px-3 py-1.5 transition-colors"
+              className="text-xs sm:text-sm font-medium text-[#57534E] hover:text-[#1C1917] px-3 py-1.5 transition-colors"
             >
               Entrar
             </Link>
             <Link
               href="/comecar"
-              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-amber-500 text-neutral-950 font-semibold text-xs sm:text-sm hover:bg-amber-400 transition-colors shadow-md shadow-amber-500/20"
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-[#1C1917] text-[#FAF8F5] text-xs sm:text-sm font-semibold hover:bg-[#2D2825] active:scale-[0.98] transition-all shadow-sm"
             >
-              <span>Quero criar minha página</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Criar minha página</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#D7C4B2]" />
             </Link>
           </div>
         </div>
       </header>
 
-      <main className="flex-1">
-        {/* 2. Hero Section — Primeira Dobra */}
-        <section className="relative overflow-hidden pt-16 sm:pt-24 pb-20 border-b border-neutral-800/60">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-            {/* Tag institucional */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-amber-400 text-xs sm:text-sm font-medium mb-8 shadow-sm">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Para Salões de Beleza, Barbearias e Nail Designers</span>
+      <main>
+        {/* ─────────────────────────────────────────────────────────────
+            2. HERO PRINCIPAL (Editorial, objetivo e com preview real)
+           ───────────────────────────────────────────────────────────── */}
+        <section className="relative pt-12 sm:pt-20 pb-16 sm:pb-24 overflow-hidden border-b border-[#EAE4DC]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            {/* Tag de Segmento */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EFECE6] border border-[#E2DDD5] text-[#57534E] text-xs font-medium mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#8C5E32]" />
+              <span>Salões de Beleza · Barbearias · Nail Designers</span>
             </div>
 
-            {/* Headline Principal */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight max-w-4xl font-serif text-white leading-tight">
-              Sua página profissional, pronta para{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500">
-                destacar seu negócio.
-              </span>
+            {/* Headline */}
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[#1C1917] max-w-3xl mx-auto leading-[1.15]">
+              Sua página profissional, pronta para valorizar o seu trabalho.
             </h1>
 
-            {/* Subtítulo Comercial */}
-            <p className="mt-6 text-base sm:text-lg text-neutral-400 max-w-2xl leading-relaxed">
-              Apresente seus serviços, tabela de preços, fotos dos seus melhores trabalhos, informações completas de atendimento e receba agendamentos diretos pelo WhatsApp com praticidade.
+            {/* Subtítulo */}
+            <p className="mt-5 text-sm sm:text-base lg:text-lg text-[#57534E] max-w-2xl mx-auto leading-relaxed">
+              Apresente serviços com valores e tempo de atendimento, mostre fotos reais do seu espaço e receba pedidos de agendamento diretamente no WhatsApp — sem cobrança de comissões.
             </p>
 
-            {/* CTAs Principais */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto">
+            {/* Chamadas de Ação */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
               <Link
                 href="/comecar"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-500 text-neutral-950 font-semibold text-sm hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1C1917] text-[#FAF8F5] text-sm font-semibold hover:bg-[#2D2825] transition-all shadow-md active:scale-[0.98]"
               >
-                <span>Quero criar minha página</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Solicitar criação da página</span>
+                <ArrowRight className="w-4 h-4 text-[#D7C4B2]" />
               </Link>
               <a
                 href="#modelos"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 font-medium text-sm hover:bg-neutral-800/80 hover:text-white transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white border border-[#DDD7CD] text-[#1C1917] text-sm font-medium hover:bg-[#F5F2ED] transition-colors"
               >
-                <Eye className="w-4 h-4 text-neutral-400" />
-                <span>Ver modelos</span>
+                <span>Explorar demonstrações</span>
+                <ChevronRight className="w-4 h-4 text-[#78716C]" />
               </a>
             </div>
 
-            {/* Demonstração Visual Rápida dos 3 Modelos Reais */}
-            <div className="mt-16 w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
-              {/* Card Resumo 1: Salão */}
-              <div className="p-5 rounded-2xl bg-neutral-900/80 border border-neutral-800 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">
-                      Salão de Beleza
-                    </span>
-                    <Sparkles className="w-4 h-4 text-amber-400" />
+            {/* Demonstração Visual Real: Mockup de Navegador com a Página Lumière Concept */}
+            <div className="mt-14 sm:mt-16 max-w-4xl mx-auto">
+              <div className="bg-white rounded-2xl border border-[#DDD7CD] shadow-xl overflow-hidden text-left">
+                {/* Barra do Navegador */}
+                <div className="bg-[#F5F2ED] px-4 py-3 border-b border-[#EAE4DC] flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-[#E5DCD0]" />
+                    <span className="w-3 h-3 rounded-full bg-[#E5DCD0]" />
+                    <span className="w-3 h-3 rounded-full bg-[#E5DCD0]" />
                   </div>
-                  <h2 className="text-base font-semibold text-white">Modelo Lumière Concept</h2>
-                  <p className="mt-1.5 text-xs text-neutral-400 leading-relaxed">
-                    Visual elegante para cabeleireiros, tratamentos capilares e spas. Catálogo detalhado e galeria de transformações.
-                  </p>
+                  <div className="bg-white px-4 py-1 rounded-md text-[11px] text-[#78716C] font-mono border border-[#EAE4DC] flex items-center gap-2 max-w-xs truncate">
+                    <span className="text-[#8C5E32]">https://</span>
+                    <span>glowsaas.com/p/lumiere-hair</span>
+                  </div>
+                  <div className="text-[11px] font-medium text-[#78716C] hidden sm:block">
+                    Modelo Salão
+                  </div>
                 </div>
-                <Link
-                  href="/p/lumiere-hair"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1.5 text-xs text-amber-400 font-medium hover:text-amber-300 transition-colors"
-                >
-                  <span>Prévia do modelo</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
-              </div>
 
-              {/* Card Resumo 2: Barbearia */}
-              <div className="p-5 rounded-2xl bg-neutral-900/80 border border-neutral-800 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-300 bg-neutral-800 px-2.5 py-0.5 rounded border border-neutral-700">
-                      Barbearia
-                    </span>
-                    <Scissors className="w-4 h-4 text-neutral-400" />
-                  </div>
-                  <h2 className="text-base font-semibold text-white">Modelo Navalha de Ouro</h2>
-                  <p className="mt-1.5 text-xs text-neutral-400 leading-relaxed">
-                    Identidade clássica em grafite e âmbar para cortes e barba. Combos em destaque e contato rápido no WhatsApp.
-                  </p>
-                </div>
-                <Link
-                  href="/p/navalha-de-ouro"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1.5 text-xs text-amber-400 font-medium hover:text-amber-300 transition-colors"
-                >
-                  <span>Prévia do modelo</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+                {/* Conteúdo Real do Preview */}
+                <div className="p-6 sm:p-10 bg-[#FAF8F5]">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div className="lg:col-span-7 space-y-4">
+                      <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#8C5E32] bg-[#F1E8DF] px-2.5 py-1 rounded">
+                        Lumière Concept Hair & Spa
+                      </span>
+                      <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[#1C1917] leading-tight">
+                        Elegância e cuidado em cada detalhe do seu cabelo.
+                      </h2>
+                      <p className="text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                        Mechas personalizadas, tratamentos capilares profundos e visagismo em um ambiente acolhedor no bairro Jardins, São Paulo.
+                      </p>
 
-              {/* Card Resumo 3: Unhas */}
-              <div className="p-5 rounded-2xl bg-neutral-900/80 border border-neutral-800 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 px-2.5 py-0.5 rounded border border-rose-500/20">
-                      Unhas em Gel
-                    </span>
-                    <Crown className="w-4 h-4 text-rose-400" />
+                      {/* Tabela de Serviços Resumida */}
+                      <div className="pt-2 border-t border-[#EAE4DC] space-y-2">
+                        <div className="flex items-center justify-between text-xs py-1.5 border-b border-[#EAE4DC]/60">
+                          <span className="font-medium text-[#1C1917]">Mechas Criativas & Iluminação</span>
+                          <span className="font-semibold text-[#8C5E32]">R$ 480,00</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs py-1.5 border-b border-[#EAE4DC]/60">
+                          <span className="font-medium text-[#1C1917]">Tratamento Reconstrutor Fusion</span>
+                          <span className="font-semibold text-[#8C5E32]">R$ 220,00</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex items-center gap-3">
+                        <Link
+                          href="/p/lumiere-hair"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#8C5E32] text-white text-xs font-semibold hover:bg-[#784F29] transition-colors"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <span>Agendar Atendimento VIP</span>
+                        </Link>
+                        <span className="text-[11px] text-[#78716C] flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Terça a Sábado das 09h às 19h</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Imagem Real do Modelo */}
+                    <div className="lg:col-span-5">
+                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-[#EAE4DC] shadow-sm bg-[#EFECE6]">
+                        <Image
+                          src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80"
+                          alt="Ambiente profissional do salão Lumière Concept"
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          priority
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-base font-semibold text-white">Modelo Gisele Nail Art</h2>
-                  <p className="mt-1.5 text-xs text-neutral-400 leading-relaxed">
-                    Estética refinada em rosé e nude suave. Fotografias de alta resolução, biossegurança e tabela de procedimentos.
-                  </p>
                 </div>
-                <Link
-                  href="/p/gisele-nails"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1.5 text-xs text-rose-300 font-medium hover:text-rose-200 transition-colors"
-                >
-                  <span>Prévia do modelo</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 3. Seção de Modelos Disponíveis */}
-        <section id="modelos" className="py-20 border-b border-neutral-800/60 bg-neutral-900/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-14">
-              <span className="text-xs uppercase tracking-wider font-semibold text-amber-400">
-                Templates Reais
+        {/* ─────────────────────────────────────────────────────────────
+            3. MODELOS DISPONÍVEIS (Seção ÚNICA com 3 modelos reais)
+           ───────────────────────────────────────────────────────────── */}
+        <section id="modelos" className="py-16 sm:py-24 border-b border-[#EAE4DC]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mb-12">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8C5E32]">
+                Modelos Especializados
               </span>
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-serif mt-2">
-                Modelos desenvolvidos para o seu segmento
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#1C1917] mt-2">
+                Projetados para a realidade de cada profissional
               </h2>
-              <p className="mt-3 text-sm sm:text-base text-neutral-400">
-                Cada modelo foi planejado considerando a rotina de atendimento e as preferências do público de cada nicho da beleza.
+              <p className="mt-3 text-sm sm:text-base text-[#57534E]">
+                Cada segmento possui necessidades específicas de atendimento. Nossos modelos organizam os serviços e fotos da forma como seus clientes esperam encontrar.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Modelo 1: Salão */}
-              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/40 transition-colors">
-                <div className="p-6 sm:p-7">
-                  <div className="flex items-center gap-2 text-amber-400 mb-3">
-                    <Sparkles className="w-5 h-5" />
-                    <span className="text-xs uppercase tracking-wider font-bold">Salão de Beleza</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Modelo 1: Salão de Beleza */}
+              <div className="bg-white rounded-2xl border border-[#DDD7CD] overflow-hidden flex flex-col justify-between shadow-sm hover:border-[#8C5E32]/60 transition-colors">
+                <div>
+                  <div className="relative aspect-[16/10] bg-[#EFECE6] border-b border-[#EAE4DC]">
+                    <Image
+                      src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80"
+                      alt="Modelo para Salão de Beleza"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 350px"
+                    />
+                    <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#EAE4DC] text-[11px] font-semibold text-[#8C5E32] flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" />
+                      <span>Salão de Beleza</span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white font-serif">Modelo Lumière Concept</h3>
-                  <p className="mt-1 text-xs text-neutral-400">
-                    <strong className="text-neutral-300">Indicado para:</strong> Cabeleireiros, coloristas, tratamentos capilares e spas urbanos.
-                  </p>
 
-                  <div className="mt-6 pt-5 border-t border-neutral-800/80 space-y-2.5 text-xs text-neutral-300">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>Catálogo de mechas, cortes e procedimentos com duração e valor.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>Galeria de transformações e fotos de alta resolução.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>Botões diretos com mensagem personalizada no WhatsApp.</span>
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl text-[#1C1917]">Lumière Concept</h3>
+                    <p className="mt-2 text-xs text-[#57534E] leading-relaxed">
+                      Voltado para cabeleireiros, visagistas e clínicas de estética capilar. Destaque para catálogo de mechas, cortes e fotos de transformações.
+                    </p>
+
+                    <div className="mt-5 pt-4 border-t border-[#EAE4DC] space-y-2 text-xs text-[#57534E]">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Preço e duração de cada procedimento</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Galeria de fotos em alta resolução</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Mensagem automática no WhatsApp</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-7 pt-0">
+                <div className="p-6 pt-0">
                   <Link
                     href="/p/lumiere-hair"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700/80 text-white font-semibold text-xs sm:text-sm border border-neutral-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg bg-[#FAF8F5] border border-[#DDD7CD] hover:bg-[#F3EFE9] text-xs font-semibold text-[#1C1917] transition-colors"
                   >
-                    <span>Ver modelo</span>
-                    <ExternalLink className="w-4 h-4 text-neutral-400" />
+                    <span>Ver página ao vivo</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-[#78716C]" />
                   </Link>
                 </div>
               </div>
 
               {/* Modelo 2: Barbearia */}
-              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/40 transition-colors">
-                <div className="p-6 sm:p-7">
-                  <div className="flex items-center gap-2 text-neutral-300 mb-3">
-                    <Scissors className="w-5 h-5 text-amber-400" />
-                    <span className="text-xs uppercase tracking-wider font-bold">Barbearia</span>
+              <div className="bg-white rounded-2xl border border-[#DDD7CD] overflow-hidden flex flex-col justify-between shadow-sm hover:border-[#8C5E32]/60 transition-colors">
+                <div>
+                  <div className="relative aspect-[16/10] bg-[#EFECE6] border-b border-[#EAE4DC]">
+                    <Image
+                      src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80"
+                      alt="Modelo para Barbearia"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 350px"
+                    />
+                    <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#EAE4DC] text-[11px] font-semibold text-[#1C1917] flex items-center gap-1.5">
+                      <Scissors className="w-3 h-3" />
+                      <span>Barbearia</span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white font-serif">Modelo Navalha de Ouro</h3>
-                  <p className="mt-1 text-xs text-neutral-400">
-                    <strong className="text-neutral-300">Indicado para:</strong> Barbearias tradicionais, estúdios masculinos e barbeiros autônomos.
-                  </p>
 
-                  <div className="mt-6 pt-5 border-t border-neutral-800/80 space-y-2.5 text-xs text-neutral-300">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>Combos especiais de corte e barba com preço e tempo estimado.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>Apresentação dos barbeiros e ambiente do estabelecimento.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <span>Agendamento ágil para evitar tempo de espera e filas.</span>
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl text-[#1C1917]">Navalha de Ouro</h3>
+                    <p className="mt-2 text-xs text-[#57534E] leading-relaxed">
+                      Identidade moderna e masculina em tons sóbrios. Apresentação clara de cortes tradicionais, degradê, barba na toalha quente e combos.
+                    </p>
+
+                    <div className="mt-5 pt-4 border-t border-[#EAE4DC] space-y-2 text-xs text-[#57534E]">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Menu de cortes individuais e combos</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Horários de atendimento e dias abertos</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Botão de agendamento ágil</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-7 pt-0">
+                <div className="p-6 pt-0">
                   <Link
                     href="/p/navalha-de-ouro"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700/80 text-white font-semibold text-xs sm:text-sm border border-neutral-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg bg-[#FAF8F5] border border-[#DDD7CD] hover:bg-[#F3EFE9] text-xs font-semibold text-[#1C1917] transition-colors"
                   >
-                    <span>Ver modelo</span>
-                    <ExternalLink className="w-4 h-4 text-neutral-400" />
+                    <span>Ver página ao vivo</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-[#78716C]" />
                   </Link>
                 </div>
               </div>
 
-              {/* Modelo 3: Unhas */}
-              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-rose-500/40 transition-colors">
-                <div className="p-6 sm:p-7">
-                  <div className="flex items-center gap-2 text-rose-300 mb-3">
-                    <Crown className="w-5 h-5 text-rose-400" />
-                    <span className="text-xs uppercase tracking-wider font-bold">Unhas em Gel</span>
+              {/* Modelo 3: Nail Designer */}
+              <div className="bg-white rounded-2xl border border-[#DDD7CD] overflow-hidden flex flex-col justify-between shadow-sm hover:border-[#8C5E32]/60 transition-colors">
+                <div>
+                  <div className="relative aspect-[16/10] bg-[#EFECE6] border-b border-[#EAE4DC]">
+                    <Image
+                      src="https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=800&q=80"
+                      alt="Modelo para Nail Designer"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 350px"
+                    />
+                    <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#EAE4DC] text-[11px] font-semibold text-[#9C5A48] flex items-center gap-1.5">
+                      <Crown className="w-3 h-3" />
+                      <span>Unhas em Gel</span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white font-serif">Modelo Gisele Nail Art</h3>
-                  <p className="mt-1 text-xs text-neutral-400">
-                    <strong className="text-neutral-300">Indicado para:</strong> Nail designers, manicures especializadas e estúdios de alongamento.
-                  </p>
 
-                  <div className="mt-6 pt-5 border-t border-neutral-800/80 space-y-2.5 text-xs text-neutral-300">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>Fotografias amplas destacando acabamento, formatos e arte.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>Procedimentos de aplicação, manutenção e biossegurança.</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>Estética sofisticada em tons neutros, rosé e off-white.</span>
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl text-[#1C1917]">Studio Gisele Nails</h3>
+                    <p className="mt-2 text-xs text-[#57534E] leading-relaxed">
+                      Estética delicada e refinada. Destaque para alongamento em gel moldado, blindagem diamantada, protocolos de biossegurança e fotos de detalhes.
+                    </p>
+
+                    <div className="mt-5 pt-4 border-t border-[#EAE4DC] space-y-2 text-xs text-[#57534E]">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Tabela de alongamentos e manutenções</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Seção de biossegurança e materiais</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                        <span>Canal de agendamento direto</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-7 pt-0">
+                <div className="p-6 pt-0">
                   <Link
                     href="/p/gisele-nails"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700/80 text-white font-semibold text-xs sm:text-sm border border-neutral-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg bg-[#FAF8F5] border border-[#DDD7CD] hover:bg-[#F3EFE9] text-xs font-semibold text-[#1C1917] transition-colors"
                   >
-                    <span>Ver modelo</span>
-                    <ExternalLink className="w-4 h-4 text-neutral-400" />
+                    <span>Ver página ao vivo</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-[#78716C]" />
                   </Link>
                 </div>
               </div>
@@ -340,353 +382,382 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 4. Seção de Benefícios */}
-        <section id="beneficios" className="py-20 border-b border-neutral-800/60">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-14">
-              <span className="text-xs uppercase tracking-wider font-semibold text-amber-400">
-                Vantagens Reais
+        {/* ─────────────────────────────────────────────────────────────
+            4. BENEFÍCIOS CONCRETOS (Recursos reais do sistema)
+           ───────────────────────────────────────────────────────────── */}
+        <section id="beneficios" className="py-16 sm:py-24 border-b border-[#EAE4DC] bg-[#FAF8F5]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mb-12">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8C5E32]">
+                Recursos Concretos
               </span>
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-serif mt-2">
-                Tudo o que seu negócio precisa para transmitir confiança
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#1C1917] mt-2">
+                O que sua página realmente oferece
               </h2>
-              <p className="mt-3 text-sm sm:text-base text-neutral-400">
-                Recursos planejados para valorizar seu trabalho e facilitar o primeiro contato com novos clientes.
+              <p className="mt-3 text-sm sm:text-base text-[#57534E]">
+                Funcionalidades desenvolvidas especificamente para o fluxo de quem atende clientes por hora marcada.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Benefício 1 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
-                  <Globe className="w-5 h-5" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F2ED] text-[#8C5E32] flex items-center justify-center mb-4">
+                  <Smartphone className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-semibold text-white">Apresentação Profissional do Negócio</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Tenha um link próprio para a bio do seu Instagram, organizando sua presença digital com elegância e passando credibilidade imediata.
+                <h3 className="font-semibold text-sm text-[#1C1917]">Visual Impecável no Celular</h3>
+                <p className="mt-1.5 text-xs text-[#57534E] leading-relaxed">
+                  Mais de 90% dos seus clientes abrem o link pelo Instagram. A página é leve, rápida e calibrada para qualquer tamanho de tela.
                 </p>
               </div>
 
-              {/* Benefício 2 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
-                  <Calendar className="w-5 h-5" />
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F2ED] text-[#8C5E32] flex items-center justify-center mb-4">
+                  <Calendar className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-semibold text-white">Serviços, Preços e Galeria</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Deixe claro o que você oferece, o tempo estimado de cada atendimento e os valores exatos, acompanhados de fotos dos seus trabalhos.
+                <h3 className="font-semibold text-sm text-[#1C1917]">Catálogo com Preço e Duração</h3>
+                <p className="mt-1.5 text-xs text-[#57534E] leading-relaxed">
+                  Evite responder repetidamente sobre valores. O cliente escolhe o procedimento já sabendo quanto custa e o tempo necessário.
                 </p>
               </div>
 
-              {/* Benefício 3 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
-                  <MessageCircle className="w-5 h-5" />
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F2ED] text-[#8C5E32] flex items-center justify-center mb-4">
+                  <MessageCircle className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-semibold text-white">Acesso Direto ao WhatsApp</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Os clientes clicam no serviço desejado e já abrem uma conversa no seu WhatsApp com a mensagem pré-preenchida, agilizando seu atendimento.
+                <h3 className="font-semibold text-sm text-[#1C1917]">Agendamento Direto no WhatsApp</h3>
+                <p className="mt-1.5 text-xs text-[#57534E] leading-relaxed">
+                  Ao clicar em agendar, o cliente é direcionado para sua conversa com uma mensagem pré-preenchida contendo o serviço escolhido.
                 </p>
               </div>
 
-              {/* Benefício 4 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
-                  <Sliders className="w-5 h-5" />
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F2ED] text-[#8C5E32] flex items-center justify-center mb-4">
+                  <Sliders className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-semibold text-white">Personalização Visual pelo Painel</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Altere nome do negócio, logo, cores de destaque, horários, fotos da galeria e endereço sem depender de suporte e sem tocar em código.
+                <h3 className="font-semibold text-sm text-[#1C1917]">Painel de Edição Autônomo</h3>
+                <p className="mt-1.5 text-xs text-[#57534E] leading-relaxed">
+                  Acesse sua área restrita a qualquer momento para atualizar preços, adicionar novos tratamentos ou alterar horários de funcionamento.
                 </p>
               </div>
 
-              {/* Benefício 5 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 md:col-span-2 lg:col-span-2">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
-                  <Smartphone className="w-5 h-5" />
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F2ED] text-[#8C5E32] flex items-center justify-center mb-4">
+                  <MapPin className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-semibold text-white">Layout Adaptado para Celular, Tablet e Computador</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Desenvolvido com foco no celular (mobile-first), o site abre rapidamente, sem travar e sem quebrar o layout no Safari do iPhone ou no Google Chrome do Android.
+                <h3 className="font-semibold text-sm text-[#1C1917]">Localização e Horários Claros</h3>
+                <p className="mt-1.5 text-xs text-[#57534E] leading-relaxed">
+                  Endereço completo com link para o Google Maps e tabela semanal de expediente para o cliente saber exatamente quando encontrar você.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <div className="w-9 h-9 rounded-lg bg-[#F5F2ED] text-[#8C5E32] flex items-center justify-center mb-4">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <h3 className="font-semibold text-sm text-[#1C1917]">Sem Comissões por Procedimento</h3>
+                <p className="mt-1.5 text-xs text-[#57534E] leading-relaxed">
+                  O valor de cada atendimento fica 100% com você. Você paga apenas a mensalidade fixa da sua página, sem descontos por cliente agendado.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 5. Seção Como Funciona */}
-        <section id="como-funciona" className="py-20 border-b border-neutral-800/60 bg-neutral-900/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-14">
-              <span className="text-xs uppercase tracking-wider font-semibold text-amber-400">
+        {/* ─────────────────────────────────────────────────────────────
+            5. COMO FUNCIONA (Processo em 3 etapas reais)
+           ───────────────────────────────────────────────────────────── */}
+        <section id="como-funciona" className="py-16 sm:py-24 border-b border-[#EAE4DC]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mb-12">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8C5E32]">
                 Passo a Passo
               </span>
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-serif mt-2">
-                Como ter sua página pronta em 3 etapas
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#1C1917] mt-2">
+                Como ter sua página profissional
               </h2>
-              <p className="mt-3 text-sm sm:text-base text-neutral-400">
-                Sem complexidade técnica: do cadastro das informações até o link no ar.
+              <p className="mt-3 text-sm sm:text-base text-[#57534E]">
+                Um processo simples, sem necessidade de conhecimento técnico.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Etapa 1 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 relative">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 text-neutral-950 font-bold text-sm flex items-center justify-center mb-4">
-                  1
-                </div>
-                <h3 className="text-lg font-bold text-white font-serif">Escolha o modelo do seu segmento</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Defina o modelo estruturado para Salão, Barbearia ou Unhas em Gel que melhor expressa o estilo do seu atendimento.
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+              <div className="space-y-3">
+                <span className="font-serif text-3xl text-[#8C5E32] block">01</span>
+                <h3 className="font-semibold text-base text-[#1C1917]">Escolha o Modelo</h3>
+                <p className="text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  Selecione o modelo que melhor representa o seu segmento: salão de beleza, barbearia tradicional ou espaço de nail design.
                 </p>
               </div>
 
-              {/* Etapa 2 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 relative">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 text-neutral-950 font-bold text-sm flex items-center justify-center mb-4">
-                  2
-                </div>
-                <h3 className="text-lg font-bold text-white font-serif">Personalize informações e fotos</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  No painel do cliente, cadastre seus procedimentos, valores, horários de atendimento, endereço e envie as fotos da sua galeria.
+              <div className="space-y-3">
+                <span className="font-serif text-3xl text-[#8C5E32] block">02</span>
+                <h3 className="font-semibold text-base text-[#1C1917]">Envie as Informações</h3>
+                <p className="text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  Informe o nome do seu espaço, tabela de serviços com valores, horário de funcionamento e o número do seu WhatsApp de atendimento.
                 </p>
               </div>
 
-              {/* Etapa 3 */}
-              <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 relative">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 text-neutral-950 font-bold text-sm flex items-center justify-center mb-4">
-                  3
-                </div>
-                <h3 className="text-lg font-bold text-white font-serif">Configure e publique sua página</h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400 leading-relaxed">
-                  Visualize o resultado no preview do painel e publique sua página com um clique para divulgar o link aos seus clientes.
+              <div className="space-y-3">
+                <span className="font-serif text-3xl text-[#8C5E32] block">03</span>
+                <h3 className="font-semibold text-base text-[#1C1917]">Página Publicada</h3>
+                <p className="text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  Sua página é ativada no seu endereço exclusivo para você divulgar na bio do Instagram e receber acessos ao painel de gerenciamento.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 6. Seção de Planos e Condições */}
-        <section id="planos" className="py-20 border-b border-neutral-800/60">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-14">
-              <span className="text-xs uppercase tracking-wider font-semibold text-amber-400">
+        {/* ─────────────────────────────────────────────────────────────
+            6. CONDIÇÕES COMERCIAIS (Transparência real de planos)
+           ───────────────────────────────────────────────────────────── */}
+        <section id="condicoes" className="py-16 sm:py-24 border-b border-[#EAE4DC] bg-[#FAF8F5]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mb-12">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8C5E32]">
                 Condições Comerciais
               </span>
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-serif mt-2">
-                Planos transparentes e suporte dedicado
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#1C1917] mt-2">
+                Planos simples, sem taxas ocultas
               </h2>
-              <p className="mt-3 text-sm sm:text-base text-neutral-400">
-                Estrutura completa com hospedagem veloz, certificado de segurança e painel administrativo inclusos.
+              <p className="mt-3 text-sm sm:text-base text-[#57534E]">
+                A ativação da sua página é acompanhada por nossa equipe para garantir que suas informações fiquem perfeitamente configuradas.
               </p>
             </div>
 
-            <div className="max-w-2xl mx-auto bg-neutral-900 border border-neutral-800 rounded-2xl p-7 sm:p-10 shadow-xl">
-              <div className="text-center pb-6 border-b border-neutral-800">
-                <span className="text-xs uppercase tracking-wider font-semibold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-                  Estrutura Completa Inclusa
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
+              {/* Plano Starter */}
+              <div className="bg-white rounded-2xl border border-[#DDD7CD] p-6 sm:p-8 flex flex-col justify-between shadow-sm">
+                <div>
+                  <span className="text-[11px] font-semibold tracking-wider uppercase text-[#78716C]">
+                    Plano Essencial
+                  </span>
+                  <h3 className="font-serif text-2xl text-[#1C1917] mt-1">Starter</h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-xs font-medium text-[#78716C]">R$</span>
+                    <span className="text-3xl sm:text-4xl font-serif font-bold text-[#1C1917]">97</span>
+                    <span className="text-xs text-[#78716C]">/mês</span>
+                  </div>
+                  <p className="mt-3 text-xs text-[#57534E] leading-relaxed">
+                    Ideal para profissionais autônomos, barbeiros e nail designers que querem uma presença online elegante e eficiente.
+                  </p>
+
+                  <div className="mt-6 pt-5 border-t border-[#EAE4DC] space-y-2.5 text-xs text-[#57534E]">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Página completa no seu segmento</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Até 12 serviços cadastrados</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Link direto para seu WhatsApp</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Painel para atualização de preços</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Hospedagem segura inclusa</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <Link
+                    href="/comecar"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-3 px-4 rounded-xl bg-[#FAF8F5] border border-[#DDD7CD] hover:bg-[#F3EFE9] text-xs font-semibold text-[#1C1917] transition-colors"
+                  >
+                    <span>Solicitar ativação</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#78716C]" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Plano Pro */}
+              <div className="bg-white rounded-2xl border-2 border-[#1C1917] p-6 sm:p-8 flex flex-col justify-between shadow-md relative">
+                <span className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-[#1C1917] text-[#FAF8F5] text-[10px] font-semibold uppercase tracking-wider">
+                  Recomendado para Salões
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-white font-serif mt-4">
-                  Página Profissional com Painel do Cliente
-                </h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-400">
-                  Condições sob medida para o tamanho e a necessidade do seu estabelecimento.
-                </p>
-              </div>
 
-              <div className="py-6 space-y-3 text-xs sm:text-sm text-neutral-300">
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Modelo especializado (Salão, Barbearia ou Unhas em Gel)</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Painel do cliente para editar serviços, preços, fotos e horários</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Integração de agendamento direto com seu WhatsApp</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Hospedagem em nuvem de alta velocidade e certificado SSL</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Orientação inicial na configuração do seu conteúdo</span>
-                </div>
-              </div>
+                <div>
+                  <span className="text-[11px] font-semibold tracking-wider uppercase text-[#8C5E32]">
+                    Plano Avançado
+                  </span>
+                  <h3 className="font-serif text-2xl text-[#1C1917] mt-1">Pro</h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-xs font-medium text-[#78716C]">R$</span>
+                    <span className="text-3xl sm:text-4xl font-serif font-bold text-[#1C1917]">197</span>
+                    <span className="text-xs text-[#78716C]">/mês</span>
+                  </div>
+                  <p className="mt-3 text-xs text-[#57534E] leading-relaxed">
+                    Para salões maiores e estúdios com equipes, catálogo extenso de procedimentos e galeria completa de transformações.
+                  </p>
 
-              <div className="pt-6 border-t border-neutral-800">
-                <Link
-                  href="/comecar"
-                  className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-sm transition-all shadow-md shadow-amber-500/20"
-                >
-                  <span>Solicitar Informações e Demonstração</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <p className="mt-3 text-center text-xs text-neutral-500">
-                  Entre em contato com a equipe comercial para consultar valores e disponibilidade.
-                </p>
+                  <div className="mt-6 pt-5 border-t border-[#EAE4DC] space-y-2.5 text-xs text-[#57534E]">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Todos os recursos do plano Starter</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Serviços e categorias ilimitadas</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Galeria de imagens expandida</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Suporte prioritário na configuração</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5E32]" />
+                      <span>Subdomínio exclusivo personalizado</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <Link
+                    href="/comecar"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-3 px-4 rounded-xl bg-[#1C1917] hover:bg-[#2D2825] text-xs font-semibold text-[#FAF8F5] transition-colors"
+                  >
+                    <span>Solicitar ativação Pro</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#D7C4B2]" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 7. Seção de Perguntas Frequentes (FAQ) */}
-        <section id="duvidas" className="py-20 border-b border-neutral-800/60 bg-neutral-900/30">
+        {/* ─────────────────────────────────────────────────────────────
+            7. PERGUNTAS FREQUENTES (FAQ objetivo e verdadeiro)
+           ───────────────────────────────────────────────────────────── */}
+        <section id="duvidas" className="py-16 sm:py-24 border-b border-[#EAE4DC]">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs uppercase tracking-wider font-semibold text-amber-400">
+            <div className="text-center max-w-xl mx-auto mb-12">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8C5E32]">
                 Dúvidas Comuns
               </span>
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-serif mt-2">
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#1C1917] mt-2">
                 Perguntas Frequentes
               </h2>
-              <p className="mt-3 text-sm sm:text-base text-neutral-400">
-                Respostas objetivas sobre o funcionamento do painel e das páginas.
-              </p>
             </div>
 
             <div className="space-y-4">
-              {/* FAQ 1 */}
-              <div className="p-5 sm:p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Preciso de conhecimento técnico para personalizar minha página?</span>
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <h3 className="font-semibold text-sm text-[#1C1917]">
+                  Para quais profissionais a plataforma é indicada?
                 </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-neutral-400 leading-relaxed pl-6">
-                  Não. O GlowSaaS possui um painel simples e intuitivo onde você altera textos, preços, horários e fotos de forma visual, sem digitar uma linha de código.
+                <p className="mt-2 text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  O GlowSaaS foi planejado especificamente para quem trabalha com beleza e estética: salões de beleza, cabeleireiros, barbearias tradicionais, nail designers e profissionais de unhas em gel.
                 </p>
               </div>
 
-              {/* FAQ 2 */}
-              <div className="p-5 sm:p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Como os clientes realizam o agendamento?</span>
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <h3 className="font-semibold text-sm text-[#1C1917]">
+                  Eu mesmo consigo alterar meus serviços e preços depois da publicação?
                 </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-neutral-400 leading-relaxed pl-6">
-                  Cada serviço e seção da página conta com botões integrados ao WhatsApp. Ao clicar, o cliente é direcionado diretamente para uma conversa no seu número com a mensagem do serviço que ele deseja pré-preenchida.
+                <p className="mt-2 text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  Sim. Cada cliente recebe acesso ao seu próprio painel de controle. Lá você pode editar valores, criar novos serviços, alterar descrições e atualizar os horários de funcionamento sempre que precisar.
                 </p>
               </div>
 
-              {/* FAQ 3 */}
-              <div className="p-5 sm:p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Posso colocar fotos reais dos meus procedimentos?</span>
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <h3 className="font-semibold text-sm text-[#1C1917]">
+                  Como meus clientes agendam horário pela página?
                 </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-neutral-400 leading-relaxed pl-6">
-                  Sim. O painel inclui uma área de galeria onde você pode adicionar, ordenar e remover imagens dos seus trabalhos reais para que seus visitantes conheçam a qualidade do seu atendimento.
+                <p className="mt-2 text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  A página conta com botões estratégicos que direcionam o cliente diretamente para o seu WhatsApp oficial, com a mensagem formatada contendo o nome do serviço escolhido. Você mantém o controle total da sua agenda.
                 </p>
               </div>
 
-              {/* FAQ 4 */}
-              <div className="p-5 sm:p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>A página funciona bem no celular?</span>
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <h3 className="font-semibold text-sm text-[#1C1917]">
+                  Preciso pagar comissão por cada atendimento realizado?
                 </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-neutral-400 leading-relaxed pl-6">
-                  Sim. Todos os modelos foram desenvolvidos com foco prioritário em dispositivos móveis (mobile-first), garantindo navegação rápida, tipografia confortável e botões de toque adequados para telas de celular.
+                <p className="mt-2 text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  Não. Não cobramos nenhuma taxa ou porcentagem sobre seus atendimentos. O valor pago pelos seus clientes é 100% seu. Você paga apenas a assinatura mensal para manter a página no ar e ter acesso ao painel.
                 </p>
               </div>
 
-              {/* FAQ 5 */}
-              <div className="p-5 sm:p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>O que acontece se eu precisar alterar o preço de um serviço?</span>
+              <div className="p-6 rounded-xl bg-white border border-[#DDD7CD]">
+                <h3 className="font-semibold text-sm text-[#1C1917]">
+                  Como faço para contratar e ativar minha página?
                 </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-neutral-400 leading-relaxed pl-6">
-                  Você entra no seu painel pelo celular ou computador, edita o valor no catálogo de serviços e salva. A alteração passa a valer imediatamente na sua página pública.
-                </p>
-              </div>
-
-              {/* FAQ 6 */}
-              <div className="p-5 sm:p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                <h3 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2.5">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Como posso começar a usar a plataforma?</span>
-                </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-neutral-400 leading-relaxed pl-6">
-                  Basta clicar em 'Quero criar minha página' para solicitar seu espaço. Nossa equipe prestará as orientações iniciais para liberar seu acesso ao painel e publicar seu modelo.
+                <p className="mt-2 text-xs sm:text-sm text-[#57534E] leading-relaxed">
+                  Basta clicar no botão &ldquo;Criar minha página&rdquo; e preencher as informações básicas do seu negócio. Nossa equipe entrará em contato para organizar seus dados, montar a página no modelo escolhido e liberar seu acesso ao painel.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 8. CTA Final */}
-        <section className="py-20">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white font-serif max-w-2xl mx-auto">
-              Pronto para ter uma página profissional para o seu negócio?
+        {/* ─────────────────────────────────────────────────────────────
+            8. CHAMADA FINAL
+           ───────────────────────────────────────────────────────────── */}
+        <section className="py-16 sm:py-20 bg-[#FAF8F5]">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="font-serif text-2xl sm:text-4xl text-[#1C1917] max-w-xl mx-auto">
+              Pronto para transformar a apresentação do seu espaço?
             </h2>
-            <p className="mt-4 text-sm sm:text-base text-neutral-400 max-w-xl mx-auto">
-              Destaque seu espaço, organize seus serviços e facilite o agendamento dos seus clientes.
+            <p className="mt-4 text-xs sm:text-sm text-[#57534E] max-w-md mx-auto leading-relaxed">
+              Destaque seus melhores trabalhos e proporcione aos seus clientes a experiência que seu negócio merece.
             </p>
-
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/comecar"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-500 text-neutral-950 font-semibold text-sm hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1C1917] text-[#FAF8F5] text-sm font-semibold hover:bg-[#2D2825] transition-all shadow-md active:scale-[0.98]"
               >
-                <span>Quero criar minha página</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Criar minha página agora</span>
+                <ArrowRight className="w-4 h-4 text-[#D7C4B2]" />
               </Link>
-              <a
-                href="#modelos"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 font-medium text-sm hover:bg-neutral-800/80 hover:text-white transition-colors"
+              <Link
+                href="/login"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white border border-[#DDD7CD] text-[#1C1917] text-sm font-medium hover:bg-[#F5F2ED] transition-colors"
               >
-                <Eye className="w-4 h-4 text-neutral-400" />
-                <span>Ver modelos disponíveis</span>
-              </a>
+                <span>Acessar painel do cliente</span>
+              </Link>
             </div>
           </div>
         </section>
       </main>
 
-      {/* 9. Footer */}
-      <footer className="border-t border-neutral-800/80 py-12 bg-neutral-950 text-neutral-400 text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-neutral-800/60">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center text-neutral-950 font-bold text-xs">
-                G
-              </div>
-              <span className="font-bold tracking-tight text-sm text-white font-serif">GlowSaaS</span>
-              <span className="text-[11px] text-neutral-500 ml-2">
-                Páginas profissionais para negócios de beleza
-              </span>
-            </div>
-
-            <nav className="flex flex-wrap items-center justify-center gap-6 text-xs text-neutral-400">
-              <a href="#modelos" className="hover:text-amber-300 transition-colors">
-                Modelos
-              </a>
-              <a href="#beneficios" className="hover:text-amber-300 transition-colors">
-                Benefícios
-              </a>
-              <a href="#como-funciona" className="hover:text-amber-300 transition-colors">
-                Como Funciona
-              </a>
-              <a href="#planos" className="hover:text-amber-300 transition-colors">
-                Planos
-              </a>
-              <a href="#duvidas" className="hover:text-amber-300 transition-colors">
-                Dúvidas
-              </a>
-              <Link href="/login" className="text-amber-400 hover:text-amber-300 font-medium transition-colors">
-                Entrar no Painel
-              </Link>
-            </nav>
+      {/* ─────────────────────────────────────────────────────────────
+          9. RODAPÉ (Sóbrio, organizado e sem links falsos)
+         ───────────────────────────────────────────────────────────── */}
+      <footer className="border-t border-[#EAE4DC] bg-white py-12 text-[#78716C] text-xs">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded bg-[#1C1917] text-[#FAF8F5] flex items-center justify-center font-serif font-bold text-xs">
+              G
+            </span>
+            <span className="font-serif font-semibold text-[#1C1917]">GlowSaaS</span>
+            <span className="text-[#A8A29E]">· Plataforma de Páginas para a Beleza</span>
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-500 text-[11px]">
-            <p>GlowSaaS • Todos os direitos reservados. Modelos para Salões de Beleza, Barbearias e Nail Designers.</p>
-            <p>Plataforma de alta conversão integrada ao WhatsApp.</p>
+          <div className="flex items-center gap-6">
+            <a href="#modelos" className="hover:text-[#1C1917] transition-colors">
+              Modelos
+            </a>
+            <a href="#beneficios" className="hover:text-[#1C1917] transition-colors">
+              Recursos
+            </a>
+            <a href="#condicoes" className="hover:text-[#1C1917] transition-colors">
+              Assinatura
+            </a>
+            <Link href="/login" className="hover:text-[#1C1917] transition-colors">
+              Painel
+            </Link>
+          </div>
+
+          <div>
+            <span>&copy; {new Date().getFullYear()} GlowSaaS. Todos os direitos reservados.</span>
           </div>
         </div>
       </footer>

@@ -801,13 +801,86 @@ function isLiveSupabaseConfigured(): boolean {
 }
 
 export const dataService = {
-  // 1. Obter Perfil
+  // 1. Obter Perfil (Resiliente e compatível com schema padrão e legado)
   async getProfile(userId: string): Promise<Profile | null> {
     if (isLiveSupabaseConfigured()) {
       const supabase = await createClient();
+
+      // Busca padrão pelo id (esperado no GlowSaaS: id == auth.users.id)
       const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
-      return data;
+
+      if (data) {
+        return {
+          id: (data.id as string) || (data.user_id as string) || userId,
+          email: (data.email as string) || "",
+          full_name: (data.full_name as string) || (data.name as string) || "Usuário",
+          role: (data.role as Profile["role"]) || "tenant_admin",
+          created_at: (data.created_at as string) || new Date().toISOString(),
+        };
+      }
+
+      // Fallback defensivo: caso o banco legado utilize a coluna 'user_id'
+      try {
+        const { data: legacyData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", userId)
+          .single();
+
+        if (legacyData) {
+          return {
+            id: (legacyData.id as string) || (legacyData.user_id as string) || userId,
+            email: (legacyData.email as string) || "",
+            full_name: (legacyData.full_name as string) || (legacyData.name as string) || "Usuário",
+            role: (legacyData.role as Profile["role"]) || "tenant_admin",
+            created_at: (legacyData.created_at as string) || new Date().toISOString(),
+          };
+        }
+      } catch {
+        // Se a coluna 'user_id' não existir, ignora erro do fallback
+      }
+
+      return null;
     }
+    return DEMO_PROFILES[userId] || null;
+  },
+
+  // 1.1 Garantir Existência de Perfil (Para novos cadastros via Google OAuth ou e-mail)
+  async ensureProfile(userId: string, email: string, fullName: string): Promise<Profile | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+
+      // Verifica se o perfil já existe
+      const existing = await this.getProfile(userId);
+      if (existing) {
+        return existing;
+      }
+
+      // Cria perfil seguro com papel estrito de 'tenant_admin' (sem elevação de privilégios)
+      const { data, error } = await supabase
+        .from("profiles")
+        .insert({
+          id: userId,
+          email: email.toLowerCase().trim(),
+          full_name: fullName || "Usuário",
+          role: "tenant_admin",
+        })
+        .select()
+        .single();
+
+      if (error || !data) {
+        return null;
+      }
+
+      return {
+        id: data.id || userId,
+        email: data.email || email,
+        full_name: data.full_name || fullName,
+        role: (data.role as Profile["role"]) || "tenant_admin",
+        created_at: data.created_at || new Date().toISOString(),
+      };
+    }
+
     return DEMO_PROFILES[userId] || null;
   },
 
@@ -858,7 +931,27 @@ export const dataService = {
         .not("subscription_status", "in", '("suspended","cancelled")')
         .single();
 
-      if (!tenant) return null;
+      if (!tenant) {
+        // Fallback defensivo para modelos de demonstração pré-configurados do GlowSaaS
+        const demoTenant = DEMO_TENANTS.find((t) => t.slug === slug);
+        if (
+          demoTenant &&
+          demoTenant.status === "active" &&
+          demoTenant.subscription_status !== "suspended" &&
+          demoTenant.subscription_status !== "cancelled"
+        ) {
+          const demoPage = DEMO_PAGES[demoTenant.id];
+          if (demoPage && demoPage.status === "published") {
+            return {
+              tenant: demoTenant,
+              page: demoPage,
+              services: (DEMO_SERVICES[demoTenant.id] || []).filter((s) => s.is_active),
+              business_hours: DEMO_HOURS[demoTenant.id] || [],
+            };
+          }
+        }
+        return null;
+      }
       if (
         tenant.status !== "active" ||
         tenant.subscription_status === "suspended" ||
