@@ -280,6 +280,7 @@ export async function createTenantAction(formData: FormData): Promise<void> {
 
   revalidatePath("/admin");
   revalidatePath("/admin/clients");
+  redirect("/admin/clients?status=tenant_created");
 }
 
 // 8. Impersonar Cliente (Acessar Painel /app do Cliente com Auditoria e Suporte Reversível)

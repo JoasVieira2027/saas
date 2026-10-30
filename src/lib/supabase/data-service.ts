@@ -1,4 +1,4 @@
-import { createClient } from "./server";
+import { createClient, createAdminClient } from "./server";
 import {
   Tenant,
   LandingPage,
@@ -918,7 +918,8 @@ export const dataService = {
   // 2. Obter Todos os Tenants (Restrito ao Superadmin)
   async getAllTenants(): Promise<Tenant[]> {
     if (isLiveSupabaseConfigured()) {
-      const supabase = await createClient();
+      const adminClient = createAdminClient();
+      const supabase = adminClient || (await createClient());
       const { data } = await supabase.from("tenants").select("*").order("created_at", { ascending: false });
       return data || [];
     }
@@ -1070,12 +1071,150 @@ export const dataService = {
     owner_email: string;
     plan_type: "starter" | "pro";
   }): Promise<Tenant> {
+    const cleanSlug = data.slug.toLowerCase().trim().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    const monthlyPriceCents = data.plan_type === "pro" ? 19700 : 9700;
+    const normalizedEmail = data.owner_email.toLowerCase().trim();
+
+    // Persistência no Supabase Real quando configurado
+    if (isLiveSupabaseConfigured()) {
+      const adminClient = createAdminClient();
+
+      if (adminClient) {
+        let ownerId: string | null = null;
+
+        // 1. Localiza se já existe um perfil em public.profiles
+        const { data: existingProfile } = await adminClient
+          .from("profiles")
+          .select("id, email, full_name, role")
+          .eq("email", normalizedEmail)
+          .maybeSingle();
+
+        if (existingProfile) {
+          ownerId = existingProfile.id;
+        } else {
+          // 2. Cria o usuário no Supabase Auth
+          const { data: authUser, error: authError } = await adminClient.auth.admin.createUser({
+            email: normalizedEmail,
+            email_confirm: true,
+            user_metadata: {
+              full_name: data.owner_name.trim(),
+            },
+          });
+
+          if (authUser?.user) {
+            ownerId = authUser.user.id;
+          } else if (authError?.message?.includes("already been registered") || authError?.status === 422) {
+            // Se o e-mail já existia em auth.users, busca o ID correspondente
+            const { data: usersList } = await adminClient.auth.admin.listUsers();
+            const foundUser = usersList?.users?.find(
+              (u) => u.email?.toLowerCase() === normalizedEmail
+            );
+            if (foundUser) {
+              ownerId = foundUser.id;
+            } else {
+              throw new Error(`Falha ao identificar usuário existente: ${authError.message}`);
+            }
+          } else {
+            throw new Error(`Erro ao provisionar usuário no Auth: ${authError?.message || "Falha na criação"}`);
+          }
+
+          // 3. Garante a criação do perfil em public.profiles com o papel estrito 'tenant_admin'
+          await adminClient
+            .from("profiles")
+            .upsert({
+              id: ownerId,
+              email: normalizedEmail,
+              full_name: data.owner_name.trim(),
+              role: "tenant_admin",
+              updated_at: new Date().toISOString(),
+            }, { onConflict: "id" });
+        }
+
+        // 4. Cadastra o novo Tenant na tabela public.tenants
+        const nextDueDate = new Date();
+        nextDueDate.setDate(nextDueDate.getDate() + 30);
+        const nextDueDateStr = nextDueDate.toISOString().split("T")[0];
+
+        const { data: insertedTenant, error: tenantError } = await adminClient
+          .from("tenants")
+          .insert({
+            owner_id: ownerId,
+            business_name: data.business_name.trim(),
+            slug: cleanSlug,
+            segment: data.segment,
+            plan_type: data.plan_type,
+            status: "active",
+            subscription_status: "active",
+            monthly_price_cents: monthlyPriceCents,
+            due_day: 10,
+            next_due_date: nextDueDateStr,
+          })
+          .select()
+          .single();
+
+        if (tenantError || !insertedTenant) {
+          throw new Error(`Erro ao cadastrar tenant no Supabase: ${tenantError?.message || "Falha na inserção"}`);
+        }
+
+        // 5. Inicializa a Landing Page no banco public.landing_pages
+        const themeConfig = {
+          primary_color: data.segment === "barber" ? "#C5A059" : data.segment === "nails" ? "#E0A395" : "#A9855E",
+          accent_color: data.segment === "barber" ? "#1C1C1C" : data.segment === "nails" ? "#F5DDD7" : "#C2A37E",
+          font_preset: data.segment === "barber" ? "classic" : data.segment === "nails" ? "modern" : "luxury",
+          dark_mode: data.segment === "barber",
+        };
+
+        const heroSection = {
+          badge: data.segment === "barber" ? "Barbearia Tradicional" : data.segment === "nails" ? "Nail Designer" : "Salão de Beleza",
+          headline: data.business_name.trim(),
+          subheadline: "Atendimento personalizado e serviços de alta qualidade.",
+          cta_text: "Agendar Horário",
+          hero_image_url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80",
+        };
+
+        const aboutSection = {
+          title: "Sobre Nós",
+          description: "Oferecemos os melhores tratamentos com pontualidade e dedicação.",
+          years_experience: 5,
+          highlight_image_url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+        };
+
+        const contactInfo = {
+          whatsapp_number: "11999999999",
+          whatsapp_default_message: "Olá! Gostaria de agendar um horário.",
+          address_street: "Endereço comercial",
+          address_neighborhood: "Bairro",
+          address_city: "Cidade",
+          address_state: "UF",
+          google_maps_url: "",
+          instagram_handle: "@seunegocio",
+        };
+
+        await adminClient
+          .from("landing_pages")
+          .insert({
+            tenant_id: insertedTenant.id,
+            template_id: data.segment,
+            status: "draft",
+            theme_config: themeConfig,
+            hero_section: heroSection,
+            about_section: aboutSection,
+            contact_info: contactInfo,
+            seo_title: `${data.business_name} | Agendamentos`,
+            seo_description: `Conheça os serviços de ${data.business_name} e agende seu horário online.`,
+          });
+
+        return insertedTenant;
+      }
+    }
+
+    // Fallback em memória para ambiente de testes offline
     const newOwnerId = `owner-${Date.now()}`;
     const newTenantId = `tenant-${Date.now()}`;
 
     DEMO_PROFILES[newOwnerId] = {
       id: newOwnerId,
-      email: data.owner_email,
+      email: normalizedEmail,
       full_name: data.owner_name,
       role: "tenant_admin",
       created_at: new Date().toISOString(),
@@ -1085,17 +1224,21 @@ export const dataService = {
       id: newTenantId,
       owner_id: newOwnerId,
       business_name: data.business_name,
-      slug: data.slug.toLowerCase().trim().replace(/\s+/g, "-"),
+      slug: cleanSlug,
       segment: data.segment,
       plan_type: data.plan_type,
       status: "active",
+      subscription_status: "active",
+      monthly_price_cents: monthlyPriceCents,
+      due_day: 10,
+      next_due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
     DEMO_TENANTS.unshift(newTenant);
 
-    // Inicializa a landing page correspondente
+    // Inicializa a landing page correspondente em memória
     DEMO_PAGES[newTenantId] = {
       id: `page-${Date.now()}`,
       tenant_id: newTenantId,
@@ -1622,8 +1765,20 @@ export const dataService = {
     };
 
     if (isLiveSupabaseConfigured()) {
-      const supabase = await createClient();
-      await supabase.from("admin_audit_logs").insert(newLog);
+      const adminClient = createAdminClient();
+      const supabase = adminClient || (await createClient());
+      try {
+        await supabase.from("admin_audit_logs").insert({
+          admin_id: data.admin_id,
+          admin_email: data.admin_email,
+          action: data.action,
+          target_tenant_id: data.target_tenant_id,
+          target_tenant_name: data.target_tenant_name,
+          details: data.details || {},
+        });
+      } catch (err) {
+        console.error("Falha ao registrar log de auditoria no Supabase:", err);
+      }
     } else {
       DEMO_AUDIT_LOGS.unshift(newLog);
     }

@@ -2,10 +2,15 @@ import { requireSuperadmin } from "@/lib/auth";
 import { dataService } from "@/lib/supabase/data-service";
 import { createTenantAction } from "../actions";
 import { AdminClientsTable } from "@/components/admin/AdminClientsTable";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, CheckCircle2 } from "lucide-react";
 
-export default async function AdminClientsPage() {
+export default async function AdminClientsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ status?: string }>;
+}) {
   await requireSuperadmin();
+  const params = await searchParams;
 
   const rawTenants = await dataService.getAllTenants();
   const tenantsWithDetails = await Promise.all(
@@ -31,6 +36,16 @@ export default async function AdminClientsPage() {
           Cadastre novos clientes, defina planos comerciais, registre pagamentos e monitore vencimentos.
         </p>
       </div>
+
+      {/* Alerta de Sucesso após Cadastro */}
+      {params?.status === "tenant_created" && (
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm flex items-center gap-2.5 shadow-sm">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>
+            <strong>Cliente cadastrado com sucesso!</strong> O acesso do responsável foi configurado e o novo tenant já está ativo no sistema.
+          </span>
+        </div>
+      )}
 
       {/* Formulário de Criação de Novo Cliente */}
       <div className="p-5 sm:p-6 rounded-2xl bg-neutral-950 border border-neutral-800">

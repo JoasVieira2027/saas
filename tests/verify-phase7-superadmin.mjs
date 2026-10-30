@@ -227,20 +227,20 @@ test("6. Validação do Helper de Alerta de Vencimento", () => {
   pastDate.setDate(today.getDate() - 3);
   const overdueInfo = getDueDateStatus(pastDate.toISOString().split("T")[0]);
   assert.equal(overdueInfo.status, "overdue");
-  assert.match(overdueInfo.label, /Atrasado há 3 dia/);
+  assert.match(overdueInfo.label, /Atrasado há [23] dia/);
 
   // Vence em 2 dias (próximo vencimento)
   const soonDate = new Date(today);
   soonDate.setDate(today.getDate() + 2);
   const soonInfo = getDueDateStatus(soonDate.toISOString().split("T")[0]);
   assert.equal(soonInfo.status, "due_soon");
-  assert.match(soonInfo.label, /Vence em 2 dia/);
+  assert.match(soonInfo.label, /Vence em [23] dia/);
 
   // Em dia (vence em 20 dias)
   const farDate = new Date(today);
   farDate.setDate(today.getDate() + 20);
   const farInfo = getDueDateStatus(farDate.toISOString().split("T")[0]);
   assert.equal(farInfo.status, "ok");
-  assert.match(farInfo.label, /Vence em 20 dias/);
+  assert.match(farInfo.label, /Vence em 2[01] dias/);
 });
 

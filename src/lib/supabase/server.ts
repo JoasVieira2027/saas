@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export async function createClient() {
@@ -21,6 +22,33 @@ export async function createClient() {
           // Chamadas em Server Components podem ignorar set
         }
       },
+    },
+  });
+}
+
+/**
+ * Cliente Supabase com chave Service Role administrativa.
+ * EXCLUSIVO para uso seguro no servidor (Server Actions / Server Components).
+ * Utilizado pelo Super Admin para provisionamento de tenants, clientes e sincronização.
+ */
+export function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (
+    !supabaseUrl ||
+    !serviceRoleKey ||
+    serviceRoleKey.includes("placeholder") ||
+    serviceRoleKey.includes("your-service-role") ||
+    supabaseUrl.includes("mock-project")
+  ) {
+    return null;
+  }
+
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
   });
 }
