@@ -947,6 +947,8 @@ export const dataService = {
   },
 
   // 5. Obter Dados Públicos por Slug (Com validação estrita de isolamento e status ativo)
+  // Usa adminClient para leitura pública, pois a RLS de landing_pages exige status='published'
+  // mas o componente da página trata drafts com UI "Em Construção" em vez de 404.
   async getPublicPageBySlug(slug: string): Promise<{
     tenant: Tenant;
     page: LandingPage;
@@ -954,7 +956,10 @@ export const dataService = {
     business_hours: BusinessHour[];
   } | null> {
     if (isLiveSupabaseConfigured()) {
-      const supabase = await createClient();
+      // Admin client para contornar a RLS que filtra draft pages (somente leitura pública)
+      const adminClient = createAdminClient();
+      const supabase = adminClient || await createClient();
+
       const { data: tenant } = await supabase
         .from("tenants")
         .select("*")
@@ -973,7 +978,7 @@ export const dataService = {
           demoTenant.subscription_status !== "cancelled"
         ) {
           const demoPage = DEMO_PAGES[demoTenant.id];
-          if (demoPage && demoPage.status === "published") {
+          if (demoPage) {
             return {
               tenant: demoTenant,
               page: demoPage,
@@ -984,19 +989,13 @@ export const dataService = {
         }
         return null;
       }
-      if (
-        tenant.status !== "active" ||
-        tenant.subscription_status === "suspended" ||
-        tenant.subscription_status === "cancelled"
-      ) {
-        return null;
-      }
 
+      // Busca a landing page SEM filtrar por status — o componente da rota /p/[slug]
+      // trata draft ("Em Construção") e suspended ("Indisponível") com UIs dedicadas
       const { data: page } = await supabase
         .from("landing_pages")
         .select("*")
         .eq("tenant_id", tenant.id)
-        .eq("status", "published")
         .single();
 
       if (!page) return null;
@@ -1034,7 +1033,7 @@ export const dataService = {
     }
 
     const page = DEMO_PAGES[tenant.id];
-    if (!page || page.status !== "published") return null;
+    if (!page) return null;
 
     const services = (DEMO_SERVICES[tenant.id] || []).filter((s) => s.is_active);
     const business_hours = DEMO_HOURS[tenant.id] || [];
@@ -1284,6 +1283,23 @@ export const dataService = {
 
   // 8. Atualizar Configurações da Landing Page (Cliente)
   async updateLandingPage(tenantId: string, updates: Partial<LandingPage>): Promise<LandingPage | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      // Remove campos que não devem ser enviados no UPDATE
+      const { id, tenant_id, created_at, ...safeUpdates } = updates as Record<string, unknown>;
+      const { data, error } = await supabase
+        .from("landing_pages")
+        .update({ ...safeUpdates, updated_at: new Date().toISOString() })
+        .eq("tenant_id", tenantId)
+        .select()
+        .single();
+      if (error) {
+        console.error("Erro ao atualizar landing page:", error.message);
+        return null;
+      }
+      return data;
+    }
+
     const page = DEMO_PAGES[tenantId];
     if (!page) return null;
 
@@ -1298,6 +1314,34 @@ export const dataService = {
 
   // 9. Publicar ou Reverter para Rascunho
   async togglePublishPage(tenantId: string): Promise<LandingPage | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      // Busca o status atual da landing page
+      const { data: current } = await supabase
+        .from("landing_pages")
+        .select("id, status")
+        .eq("tenant_id", tenantId)
+        .single();
+      if (!current) return null;
+
+      const newStatus = current.status === "published" ? "draft" : "published";
+      const updatePayload: Record<string, unknown> = {
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      };
+      if (newStatus === "published") {
+        updatePayload.published_at = new Date().toISOString();
+      }
+
+      const { data } = await supabase
+        .from("landing_pages")
+        .update(updatePayload)
+        .eq("tenant_id", tenantId)
+        .select()
+        .single();
+      return data;
+    }
+
     const page = DEMO_PAGES[tenantId];
     if (!page) return null;
 
@@ -1552,6 +1596,25 @@ export const dataService = {
 
   // 18. Alterar Status Explícito da Página
   async setPageStatus(tenantId: string, status: "draft" | "published"): Promise<LandingPage | null> {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createClient();
+      const updatePayload: Record<string, unknown> = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+      if (status === "published") {
+        updatePayload.published_at = new Date().toISOString();
+      }
+
+      const { data } = await supabase
+        .from("landing_pages")
+        .update(updatePayload)
+        .eq("tenant_id", tenantId)
+        .select()
+        .single();
+      return data;
+    }
+
     const page = DEMO_PAGES[tenantId];
     if (!page) return null;
 

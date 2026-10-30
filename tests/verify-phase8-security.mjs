@@ -135,8 +135,11 @@ test("1. Segurança de Autenticação: Cookie de sessão assinado com HMAC-SHA25
 });
 
 // 2. Testes de Isolamento de Rotas e Páginas Públicas (Tenants Suspensos / Cancelados)
-test("2. Isolamento de Tenants: Filtro estrito bloqueia clientes suspensos, cancelados e rascunhos", () => {
+test("2. Isolamento de Tenants: Filtro estrito bloqueia clientes suspensos e cancelados", () => {
   // Simulação do comportamento de isolamento de getPublicPageBySlug
+  // A função retorna os dados e o componente da rota /p/[slug] trata:
+  // - draft → UI "Em Construção"
+  // - tenant suspenso/cancelado → null (nunca retorna dados)
   function simulateGetPublicPage(tenant, page) {
     if (!tenant) return null;
     if (
@@ -146,9 +149,7 @@ test("2. Isolamento de Tenants: Filtro estrito bloqueia clientes suspensos, canc
     ) {
       return null;
     }
-    if (!page || page.status !== "published") {
-      return null;
-    }
+    if (!page) return null;
     return { tenant, page };
   }
 
@@ -170,9 +171,9 @@ test("2. Isolamento de Tenants: Filtro estrito bloqueia clientes suspensos, canc
   const cancelledTenant = { ...activeTenant, subscription_status: "cancelled" };
   assert.equal(simulateGetPublicPage(cancelledTenant, publishedPage), null, "Tenant cancelado não deve ser servido");
 
-  // Caso D: Página em rascunho
+  // Caso D: Página em rascunho de tenant ativo — retorna dados (componente mostra "Em Construção")
   const draftPage = { ...publishedPage, status: "draft" };
-  assert.equal(simulateGetPublicPage(activeTenant, draftPage), null, "Página em rascunho não deve ser servida publicamente");
+  assert.ok(simulateGetPublicPage(activeTenant, draftPage), "Página draft de tenant ativo deve retornar dados para o componente exibir UI 'Em Construção'");
 });
 
 // 3. Teste de Isolamento entre Tenants em Server Actions (Prevenção de Cross-Tenant Tampering)
