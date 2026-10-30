@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import {
   Sparkles,
   Scissors,
@@ -24,7 +25,20 @@ export const metadata = {
     "Páginas elegantes, rápidas e orientadas à conversão para salões de beleza, barbearias e nail designers. Apresente serviços, fotos e receba agendamentos no WhatsApp.",
 };
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ code?: string; error?: string; [key: string]: string | undefined }>;
+}) {
+  const params = await searchParams;
+  if (params?.code) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) query.set(key, value);
+    }
+    redirect(`/auth/callback?${query.toString()}`);
+  }
+
   return (
     <div className="min-h-screen bg-[#FBF9F5] text-[#1C1917] selection:bg-[#EAE0D5] selection:text-[#1C1917] font-sans antialiased">
       {/* ─────────────────────────────────────────────────────────────

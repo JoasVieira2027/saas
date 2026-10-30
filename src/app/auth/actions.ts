@@ -161,11 +161,22 @@ export async function loginWithGoogleAction(): Promise<void> {
 
   const supabase = await createClient();
 
-  // Resolve a URL base real considerando headers do proxy/Vercel
+  // Resolve a URL base real considerando headers do proxy/Vercel e sanitização
   const headerList = await headers();
-  const host = headerList.get("x-forwarded-host") || headerList.get("host");
+  const rawHost = headerList.get("x-forwarded-host") || headerList.get("host") || "";
+  const cleanHost = rawHost.split(",")[0].trim();
   const proto = headerList.get("x-forwarded-proto") || (process.env.NODE_ENV === "production" ? "https" : "http");
-  const appUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+
+  let appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl || (appUrl.includes("localhost") && cleanHost && !cleanHost.includes("localhost"))) {
+    appUrl = `${proto}://${cleanHost}`;
+  } else if (!appUrl && cleanHost) {
+    appUrl = `${proto}://${cleanHost}`;
+  }
+  if (!appUrl) {
+    appUrl = "http://localhost:3000";
+  }
+  appUrl = appUrl.replace(/\/+$/, "");
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

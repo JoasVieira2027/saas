@@ -3,6 +3,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { dataService } from "@/lib/supabase/data-service";
 import { setSession, signSessionData, SESSION_COOKIE_NAME, type SessionData } from "@/lib/auth";
+import { Profile } from "@/types/database";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -64,17 +65,59 @@ export async function GET(request: NextRequest) {
     const userEmail = (user.email || "").toLowerCase().trim();
 
     // 2. Modelo de acesso exclusivo por convite:
-    // Busca o perfil previamente autorizado na tabela public.profiles
-    let profile = await dataService.getProfile(user.id);
+    // Busca o perfil diretamente com o cliente autenticado (satisfaz RLS auth.uid() = user.id)
+    let profile: Profile | null = null;
+
+    const { data: directProfile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (directProfile) {
+      profile = {
+        id: (directProfile.id as string) || user.id,
+        email: (directProfile.email as string) || userEmail,
+        full_name: (directProfile.full_name as string) || (directProfile.name as string) || "Usuário",
+        role: (directProfile.role as Profile["role"]) || "tenant_admin",
+        created_at: (directProfile.created_at as string) || new Date().toISOString(),
+      };
+    }
+
+    // Fallback defensivo por e-mail caso o perfil tenha sido pré-cadastrado pelo e-mail
     if (!profile && userEmail) {
-      profile = await dataService.getProfileByEmail(userEmail);
+      const { data: emailProfile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", userEmail)
+        .maybeSingle();
+
+      if (emailProfile) {
+        profile = {
+          id: (emailProfile.id as string) || user.id,
+          email: (emailProfile.email as string) || userEmail,
+          full_name: (emailProfile.full_name as string) || (emailProfile.name as string) || "Usuário",
+          role: (emailProfile.role as Profile["role"]) || "tenant_admin",
+          created_at: (emailProfile.created_at as string) || new Date().toISOString(),
+        };
+      }
+    }
+
+    // Fallback secundário através do dataService
+    if (!profile) {
+      const dsProfile = (await dataService.getProfile(user.id)) || (userEmail ? await dataService.getProfileByEmail(userEmail) : null);
+      if (dsProfile) {
+        profile = dsProfile;
+      }
     }
 
     // 3. Se o usuário não possuir convite/perfil pré-existente no banco:
     // Não permite cadastro público irrestrito nem atribui permissões.
     // Encerra a sessão aberta no Auth e redireciona com mensagem informativa.
     if (!profile) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch {}
       return NextResponse.redirect(`${origin}/login?error=invite_required`);
     }
 
@@ -89,9 +132,15 @@ export async function GET(request: NextRequest) {
     // 5. Instancia a resposta de redirecionamento para a rota de destino
     const response = NextResponse.redirect(`${origin}${targetPath}`);
 
-    // 6. Propaga os cookies do Supabase SSR no cabeçalho Set-Cookie da resposta HTTP
+    // 6. Propaga os cookies do Supabase SSR no cabeçalho Set-Cookie da resposta HTTP com proteção
     for (const { name, value, options } of cookiesToSetLater) {
-      response.cookies.set(name, value, options);
+      try {
+        response.cookies.set(name, value, options);
+      } catch {
+        try {
+          response.cookies.set(name, value);
+        } catch {}
+      }
     }
 
     // 7. Assina e grava o cookie HMAC-SHA256 da sessão da aplicação GlowSaaS
@@ -111,11 +160,14 @@ export async function GET(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 dias
     });
 
-    // Sincroniza também no cookieStore do Next.js
-    await setSession(profile);
+    // Sincroniza defensivamente no cookieStore do Next.js sem interromper o fluxo caso rejeitado
+    try {
+      await setSession(profile);
+    } catch {}
 
     return response;
-  } catch {
+  } catch (err) {
+    console.error("[OAuth Callback Error]:", err);
     return NextResponse.redirect(`${origin}/login?error=oauth_error`);
   }
 }

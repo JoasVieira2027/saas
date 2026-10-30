@@ -24,6 +24,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/p/${subdomain}${pathname}`, request.url));
   }
 
+  // 1.1 Redirecionamento defensivo de callback OAuth que chegue na raiz ou outra rota com ?code=...
+  if (request.nextUrl.searchParams.has("code") && pathname !== "/auth/callback") {
+    const callbackUrl = new URL("/auth/callback", request.url);
+    callbackUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(callbackUrl);
+  }
+
   // 2. Proteção de Rotas com Base na Sessão Criptograficamente Assinada
   const sessionCookie = request.cookies.get("saas_auth_session");
   const userSession = sessionCookie?.value ? await verifySessionToken(sessionCookie.value) : null;
